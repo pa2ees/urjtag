@@ -733,6 +733,15 @@ urj_pyc_setpart (urj_pychain_t *self, PyObject *args)
 }
 
 static PyObject *
+urj_pyc_getpart (urj_pychain_t *self)
+{
+    urj_chain_t *urc = self->urchain;
+
+    return Py_BuildValue ("d", urc->active_part);
+}
+
+
+static PyObject *
 urj_pyc_initbus (urj_pychain_t *self, PyObject *args)
 {
     char *bus_params[5] = { NULL, NULL, NULL, NULL, NULL };
@@ -910,6 +919,46 @@ urj_pyc_get_register (urj_pychain_t *self, PyObject *args)
     return (PyObject *) reg;
 }
 
+static PyObject *
+urj_pyc_bsdl_set_path (urj_pychain_t *self, PyObject *args)
+{
+    urj_chain_t *urc = self->urchain;
+    char *bsdl_path;
+
+    if (!PyArg_ParseTuple (args, "s", &bsdl_path))
+        return NULL;
+
+    urj_bsdl_set_path (urc, bsdl_path);
+    return Py_BuildValue ("");
+}
+
+static PyObject *
+urj_pyc_bsdl_get_path (urj_pychain_t *self)
+{
+    urj_chain_t *urc = self->urchain;
+    urj_bsdl_globs_t *globs = &(urc->bsdl);
+
+    if (globs->path_list == NULL)
+        return Py_BuildValue ("s", "No Path List");
+
+    
+    return Py_BuildValue ("s", globs->path_list);
+         
+}
+
+static PyObject *
+urj_pyc_set_jtag_data_dir (urj_pychain_t *self, PyObject *args)
+{
+    urj_chain_t *urc = self->urchain;
+    char *data_dir;
+
+    if (!PyArg_ParseTuple (args, "s", &data_dir))
+        return NULL;
+
+    urj_set_data_dir(data_dir);
+
+    return Py_BuildValue ("ss", "Set Data Path to ", data_dir);;
+}
 
 static PyMethodDef urj_pyc_methods[] =
 {
@@ -971,6 +1020,8 @@ static PyMethodDef urj_pyc_methods[] =
      "manually add register to current part on the JTAG chain"},
     {"part", (PyCFunction) urj_pyc_setpart, METH_VARARGS,
      "change active part for current JTAG chain"},
+    {"get_part", (PyCFunction) urj_pyc_getpart, METH_VARARGS,
+     "get active part for current JTAG chain"},
     {"initbus", (PyCFunction) urj_pyc_initbus, METH_VARARGS,
      "initialize bus driver for active part"},
     {"detectflash", (PyCFunction) urj_pyc_detectflash, METH_VARARGS,
@@ -983,6 +1034,12 @@ static PyMethodDef urj_pyc_methods[] =
      "burn flash memory with data from a file"},
     {"get_register", (PyCFunction)urj_pyc_get_register, METH_VARARGS,
      "retrieve register object for convenient set_dr/shift_dr use"},
+    {"bsdl_set_path", (PyCFunction) urj_pyc_bsdl_set_path, METH_VARARGS,
+     "set bsdl search path"},
+    {"bsdl_get_path", (PyCFunction) urj_pyc_bsdl_get_path, METH_VARARGS,
+     "get bsdl search paths"},
+    {"set_jtag_data_dir", (PyCFunction) urj_pyc_set_jtag_data_dir, METH_VARARGS,
+     "set jtag data dir"},
 
     {NULL}                      /* Sentinel */
 };
