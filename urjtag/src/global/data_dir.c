@@ -38,7 +38,23 @@ urj_get_data_dir (void)
     return jtag_data_dir;
 }
 
+void
+urj_set_data_dir(const char *data_dir)
+{
+    char *jtag_data_dir_internal, *ptr;
+    int needed_len;
+
+    needed_len = strlen(data_dir) + 1;
+    jtag_data_dir_internal = (char *) malloc (needed_len);
+    strcpy (jtag_data_dir_internal, data_dir);
+    ptr = jtag_data_dir_internal + (needed_len - 1);
+    *ptr = '\0';
+    jtag_data_dir = jtag_data_dir_internal;
+}
+
+
 #else
+
 
 const char *
 urj_get_data_dir (void)
