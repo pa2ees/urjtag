@@ -957,7 +957,7 @@ urj_pyc_set_jtag_data_dir (urj_pychain_t *self, PyObject *args)
 
     urj_set_data_dir(data_dir);
 
-    return Py_BuildValue ("ss", "Set Data Path to ", data_dir);;
+    return Py_BuildValue ("ss", "Set Data Path to ", data_dir);
 }
 
 static PyMethodDef urj_pyc_methods[] =
