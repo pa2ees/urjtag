@@ -949,7 +949,6 @@ urj_pyc_bsdl_get_path (urj_pychain_t *self)
 static PyObject *
 urj_pyc_set_jtag_data_dir (urj_pychain_t *self, PyObject *args)
 {
-    urj_chain_t *urc = self->urchain;
     char *data_dir;
 
     if (!PyArg_ParseTuple (args, "s", &data_dir))
