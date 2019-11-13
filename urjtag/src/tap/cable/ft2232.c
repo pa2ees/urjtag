@@ -1287,7 +1287,7 @@ ft2232_jtagv5_init (urj_cable_t *cable)
 }
 
 static int
-ft2232_digilenths2_init (urj_cable_t *cable)
+ft2232_digilenths3_init (urj_cable_t *cable)
 {
     params_t *params = cable->params;
     urj_tap_cable_cx_cmd_root_t *cmd_root = &params->cmd_root;
@@ -2982,14 +2982,14 @@ const urj_cable_driver_t urj_tap_cable_ft2232_jtagv5_driver = {
 };
 URJ_DECLARE_FTDX_CABLE(0x0403, 0xa6d0, "-mpsse", "JTAGv5", jtagv5)
 
-const urj_cable_driver_t urj_tap_cable_ft2232_digilenths2_driver = {
-    "DigilentHS2",
-    N_("Digilent HS2 Adapter"),
+const urj_cable_driver_t urj_tap_cable_ft2232_digilenths3_driver = {
+    "DigilentHS3",
+    N_("Digilent HS3 Adapter"),
     URJ_CABLE_DEVICE_USB,
     { .usb = ft2232_connect, },
     urj_tap_cable_generic_disconnect,
     ft2232_cable_free,
-    ft2232_digilenths2_init,
+    ft2232_digilenths3_init,
     ft2232_generic_done,
     ft2232_set_frequency,
     ft2232_clock,
@@ -3000,7 +3000,9 @@ const urj_cable_driver_t urj_tap_cable_ft2232_digilenths2_driver = {
     ft2232_flush,
     ftdx_usbcable_help
 };
-URJ_DECLARE_FTDX_CABLE(0x0403, 0x6014, "-mpsse", "DigilentHS2", digilenths2)
+// $ lsusb
+// Bus 001 Device 002: ID 0403:6014 Future Technology Devices International, Ltd FT232H Single HS USB-UART/FIFO IC
+URJ_DECLARE_FTDX_CABLE(0x0403, 0x6014, "-mpsse", "DigilentHS3", digilenths3)
 
 /*
  Local Variables:
