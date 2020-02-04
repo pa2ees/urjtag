@@ -674,6 +674,7 @@ URJ_DRIVER_SET([cable], [
 	vsllink
 	wiggler
 	xpc
+	xvc
 ],[
 	ep9307
 	jim
