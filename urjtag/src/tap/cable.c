@@ -675,6 +675,7 @@ static const urj_param_descr_t cable_param[] =
     { URJ_CABLE_PARAM_KEY_VID,          URJ_PARAM_TYPE_LU,      "vid", },
     { URJ_CABLE_PARAM_KEY_DESC,         URJ_PARAM_TYPE_STRING,  "desc", },
     { URJ_CABLE_PARAM_KEY_DRIVER,       URJ_PARAM_TYPE_STRING,  "driver", },
+    { URJ_CABLE_PARAM_KEY_ADDRESS,      URJ_PARAM_TYPE_STRING,  "address"},
     { URJ_CABLE_PARAM_KEY_BITMAP,       URJ_PARAM_TYPE_STRING,  "bitmap", },
     { URJ_CABLE_PARAM_KEY_TDI,          URJ_PARAM_TYPE_LU,      "tdi", },
     { URJ_CABLE_PARAM_KEY_TDO,          URJ_PARAM_TYPE_LU,      "tdo", },

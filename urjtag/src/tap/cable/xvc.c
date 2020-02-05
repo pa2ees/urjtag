@@ -5,44 +5,189 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <math.h>
+
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 #include <urjtag/cable.h>
 #include <urjtag/chain.h>
+#include "generic.h"
+
+
+static const short XVC_PORT = 2542;
+#define BUFF_SIZE 2048
+
+// bits is supposed to be a little-endian 4-byte integer.
+// The max value is ~ 2048, so we use a short to avoid packing issues.
+typedef struct
+{
+    char shift[6];
+    short bits;
+    short zero;
+    char tx_vector[BUFF_SIZE * 2];
+} xvc_shift_cmd_t;
+
+typedef struct
+{
+    int sockfd;
+    int max_bytes;
+    int valid_bits;
+    xvc_shift_cmd_t cmd_buf;
+    char rx_buf[BUFF_SIZE];
+} xvc_parameters_t;
+
+///////////////////////////////////////////////////////////////////
+// a help text to be displayed by the jtag command shell
+///////////////////////////////////////////////////////////////////
+static void xvc_help(urj_log_level_t ll, const char *cablename)
+{
+	urj_log(ll, "Usage: cable %s IPADDRESS", cablename);
+}
 
 ///////////////////////////////////////////////////////////////////
 // Initialization
 ///////////////////////////////////////////////////////////////////
 static int xvc_connect(urj_cable_t *cable, const urj_param_t *params[])
 {
-	//Connect to TCP server
+    xvc_parameters_t *cable_params;
+    struct sockaddr_in sa;
+	const char* address;
+
+    if (params == NULL || params[0]->key != URJ_CABLE_PARAM_KEY_ADDRESS)
+    {
+        urj_error_set (URJ_ERROR_SYNTAX, _("missing required address\n"));
+        xvc_help (URJ_ERROR_SYNTAX, "xvc");
+        return URJ_STATUS_FAIL;
+    }
+    address = params[0]->value.string;
+
+    cable_params = calloc (1, sizeof (*cable_params));
+    if (!cable_params)
+    {
+        urj_error_set (URJ_ERROR_OUT_OF_MEMORY, _("calloc(%zd) fails"),
+                       sizeof (*cable_params));
+        free (cable);
+        return URJ_STATUS_FAIL;
+    }
+
+    cable_params->max_bytes = 0;
+    cable_params->valid_bits = 0;
+
+    urj_log (URJ_LOG_LEVEL_NORMAL,_("Connecting to XVC server\n"));
+
+
+    if ((cable_params->sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        urj_error_set(URJ_ERROR_NOTFOUND, _("Unable to setup TCP socket"));
+        return URJ_STATUS_FAIL;
+    }
+
+    sa.sin_family = AF_INET;      /* host byte order */
+    sa.sin_port = htons(XVC_PORT);    /* short, network byte order */
+    inet_pton(AF_INET, address, &(sa.sin_addr));
+    bzero(&(sa.sin_zero), 8);     /* zero the rest of the struct */
+
+	urj_log (URJ_LOG_LEVEL_COMM, _("Connecting to server: %s\n"), address);
+
+    if (-1 == connect(cable_params->sockfd, (struct sockaddr *)&sa, sizeof(struct sockaddr))) {
+        perror("connect");
+        urj_error_set(URJ_ERROR_NOTFOUND, _("Unable to connect"));
+        return URJ_STATUS_FAIL;
+    }
+
+    cable->delay = 1000;
+    cable->chain = NULL;
+    cable->params = cable_params;
+
 	return URJ_STATUS_OK;
+}
+
+static int xvc_send(urj_cable_t *cable, int len)
+{
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    char *msg = &cable_params->cmd_buf.shift[0];
+    int numbytes;
+    urj_log(URJ_LOG_LEVEL_COMM, _("TX: (%d) '%s'\n"), len, msg);
+    if (send(cable_params->sockfd, msg, len * 2 + 10, 0))
+    {
+        urj_error_set(URJ_ERROR_FILEIO, _("Send to XVC failed"));
+    }
+    numbytes = recv(cable_params->sockfd, cable_params->rx_buf,
+            cable_params->max_bytes, 0);
+    if (numbytes < 0)
+    {
+        urj_error_set(URJ_ERROR_FILEIO, _("RX from XVC failed"));
+    }
+    urj_log(URJ_LOG_LEVEL_COMM, "RX: %s\n", cable_params->rx_buf);
+    return URJ_STATUS_OK;
 }
 
 /** @return URJ_STATUS_OK on success; URJ_STATUS_FAIL on failure */
 static int xvc_init(urj_cable_t *cable)
 {
-	return URJ_STATUS_OK;
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    int fd = cable_params->sockfd;
+    int numbytes;
+    char buf[256];
+
+    if (send(fd, "getinfo:", 8, 0))
+    {
+        urj_error_set(URJ_ERROR_FILEIO, _("Send to XVC failed"));
+    }
+    numbytes = recv(fd, buf, 256, 0);
+    if (numbytes < 0)
+    {
+        urj_error_set(URJ_ERROR_FILEIO, _("RX from XVC failed"));
+    }
+    urj_log(URJ_LOG_LEVEL_COMM, "TX: getinfo\tRX:%s", buf);
+
+    if (strstr(buf, "xvcServer_v1.0"))
+    {
+        char *buffersize = strstr(buf, ":") + 1;
+        int buff_size = strtol(buffersize, NULL, 0);
+        cable_params->max_bytes = buff_size;
+        strcpy(cable_params->cmd_buf.shift, "shift:");
+//		cable_params->buffer = calloc (1, buff_size);
+        urj_log(URJ_LOG_LEVEL_COMM, "Max buffer size = %d\n", buff_size);
+        return URJ_STATUS_OK;
+    }
+    return URJ_STATUS_FAIL;
 }
 
 
 ///////////////////////////////////////////////////////////////////
 // Cleanup
 ///////////////////////////////////////////////////////////////////
+static void xvc_done(urj_cable_t *cable)
+{
+    // Drive the hardware to a safe and consistent state
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    // Reset the TAP?
+    urj_log(URJ_LOG_LEVEL_COMM, _("Closing XVC connection\n"));
+    close(cable_params->sockfd);
+}
+
 static void xvc_disconnect(urj_cable_t *cable)
 {
-	// Clean up if a disconnection was detected by the low level driver.
-	// Needs to call chain_disconnect, which will call done() then cable_free()
+    urj_log(URJ_LOG_LEVEL_COMM, _("Detected disconnect\n"));
+
+    // Clean up if a disconnection was detected by the low level driver.
+    // Needs to call chain_disconnect, which will call done() then cable_free()
+    urj_tap_chain_disconnect(cable->chain);
+    xvc_done(cable);
 }
 
 static void xvc_free(urj_cable_t *cable)
 {
-	// Cleanup eventually extra allocated memory, etc.
-}
-
-static void xvc_done(urj_cable_t *cable)
-{
-	// Drive the hardware to a safe and consistent state
-
+    // Cleanup extra allocated memory, etc.
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    urj_log(URJ_LOG_LEVEL_COMM, _("Freeing XVC memory\n"));
+//	free(cable_params->buffer);
+    free(cable_params);
+    free(cable);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -50,7 +195,8 @@ static void xvc_done(urj_cable_t *cable)
 ///////////////////////////////////////////////////////////////////
 static void xvc_set_frequency(urj_cable_t *cable, uint32_t freq)
 {
-	// send tclk command
+    urj_log(URJ_LOG_LEVEL_COMM, _("Set XVC clock rate\n"));
+    // send tclk command
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -58,14 +204,34 @@ static void xvc_set_frequency(urj_cable_t *cable, uint32_t freq)
 ///////////////////////////////////////////////////////////////////
 static void xvc_clock(urj_cable_t *cable, int tms, int tdi, int n)
 {
-	// low-level
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    char tms_vec = 0;
+    char tdi_vec = 0;
+    int num_bytes = (n + 8) / 8;
+
+    urj_log(URJ_LOG_LEVEL_COMM, _("Send tms=%x, tdi=%x, n=%d\n"), tms, tdi, n);
+
+    cable_params->valid_bits = n;
+    if (tms)
+        tms_vec = pow(2, n) - 1;
+    if (tdi)
+        tdi_vec = pow(2, n) - 1;
+    cable_params->cmd_buf.bits = n;
+    cable_params->cmd_buf.tx_vector[0] = tms_vec;
+    cable_params->cmd_buf.tx_vector[1] = tdi_vec;
+    xvc_send(cable, num_bytes);
+    // low-level
 }
 
 /** @return 0 or 1 on success; -1 on failure */
 static int xvc_get_tdo(urj_cable_t *cable)
 {
-	// low-level
-	return 0;
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    char tdo = cable_params->rx_buf[0];
+    // low-level
+    urj_log(URJ_LOG_LEVEL_COMM, _("get tdo: %x (%d)\n"), tdo, tdo & 0x1);
+    return tdo & 0x1;
+//	return 0;
 }
 
 /** @return nonnegative number, or the number of transferred bits on
@@ -73,8 +239,8 @@ static int xvc_get_tdo(urj_cable_t *cable)
  */
 static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
 {
-	// TMS is set to zero durring transfers
-	return URJ_STATUS_OK;
+    // TMS is set to zero durring transfers
+    return URJ_STATUS_OK;
 }
 
 
@@ -84,31 +250,22 @@ static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
 /** @return 0 or 1 on success; -1 on failure */
 static int xvc_set_signal(urj_cable_t *cable, int mask, int val)
 {
-	return URJ_STATUS_OK;
+    return URJ_STATUS_OK;
 }
 
 /** @return 0 or 1 on success; -1 on failure */
 static int xvc_get_signal(urj_cable_t *cable, urj_pod_sigsel_t sig)
 {
-	return URJ_STATUS_OK;
+    return URJ_STATUS_OK;
 }
-
 
 ///////////////////////////////////////////////////////////////////
 // internally used to actually perform JTAG activities
 ///////////////////////////////////////////////////////////////////
 static void xvc_flush(urj_cable_t *cable, urj_cable_flush_amount_t how_much)
 {
-	// Use to execute queued activity
-	// See generic.c:urj_tap_cable_generic_flush_using_transfer
-}
-
-///////////////////////////////////////////////////////////////////
-// a help text to be displayed by the jtag command shell
-///////////////////////////////////////////////////////////////////
-static void xvc_help(urj_log_level_t ll, const char *cablename)
-{
-
+    // Use to execute queued activity
+    // See generic.c:urj_tap_cable_generic_flush_using_transfer
 }
 
 
@@ -125,9 +282,9 @@ const urj_cable_driver_t urj_tap_cable_xvc_driver = {
     xvc_set_frequency,
     xvc_clock,
     xvc_get_tdo,
-    xvc_transfer,
+    urj_tap_cable_generic_transfer, //xvc_transfer,
     xvc_set_signal,
     xvc_get_signal,
-    xvc_flush,
+    urj_tap_cable_generic_flush_one_by_one, //xvc_flush,
     xvc_help
 };
