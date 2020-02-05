@@ -281,7 +281,36 @@ static int xvc_get_tdo(urj_cable_t *cable)
  */
 static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
 {
-    // TMS is set to zero durring transfers
+    int numbytes = (len + 7) / 8;
+    int ii;
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+
+    if (!len)
+        return URJ_STATUS_FAIL;
+
+    // TMS is set to zero during 'transfer'
+    memset(cable_params->tms, 0, numbytes);
+    memset(cable_params->tdi, 0, numbytes);
+
+    for(ii = 0; ii < len; ii++)
+    {
+        int bit = ii&0x7;
+        int byte = ii/8;
+        cable_params->tdi[byte] |= in[ii] << bit;
+    }
+    urj_log(URJ_LOG_LEVEL_COMM, _("transfer: %d (%d)\n"), len, numbytes);
+
+    xvc_send(cable, len);
+
+    if (out)
+    {
+        for(ii = 0; ii < len; ii++)
+        {
+            int bit = ii&0x7;
+            int byte = ii/8;
+            out[ii] = (cable_params->tdo[byte] >> bit) & 0x1;
+        }
+    }
     return URJ_STATUS_OK;
 }
 
