@@ -96,11 +96,36 @@ static int xvc_connect(urj_cable_t *cable, const urj_param_t *params[])
     return URJ_STATUS_OK;
 }
 
+static void
+print_bit_vector (urj_log_level_t ll, int len, char *vec)
+{
+    int ii;
+    int numbytes = (len + 7) / 8;
+
+    if (! ((ll) >= urj_log_state.level))
+        return;
+
+    for (ii = 0; ii < numbytes; ii++)
+    {
+        printf("%02x ", 0xFF & vec[ii]);
+    }
+    printf("|\t");
+    for (ii = 0; ii < len; ii++)
+    {
+        int bit = ii&0x7;
+        int byte = ii/8;
+        int val = (vec[byte] >> bit) & 0x1;
+        printf("%d ", val);
+    }
+    printf("\n");
+}
+
 static int xvc_send(urj_cable_t *cable, int bits)
 {
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
     int numbytes;
     int ret = 0;
+    int ii;
 
     numbytes = (bits + 7) / 8;
     ret |= send(cable_params->sockfd, "shift:", 6, MSG_MORE);
@@ -108,7 +133,8 @@ static int xvc_send(urj_cable_t *cable, int bits)
     ret |= send(cable_params->sockfd, cable_params->tms, numbytes, MSG_MORE);
     ret |= send(cable_params->sockfd, cable_params->tdi, numbytes, 0);
 
-    urj_log (URJ_LOG_LEVEL_COMM, _("TX: (%d) 'shift:%s'\n"), numbytes, &bits); //, cable_params->tms[0], cable_params->tdi[0]);
+    urj_log (URJ_LOG_LEVEL_COMM, _("TX(%d):\t"), bits);
+    print_bit_vector(URJ_LOG_LEVEL_COMM, bits, cable_params->tdi);
     if (ret)
     {
         urj_error_set(URJ_ERROR_FILEIO, _("Send to XVC failed"));
@@ -119,7 +145,8 @@ static int xvc_send(urj_cable_t *cable, int bits)
         urj_error_set(URJ_ERROR_FILEIO, _("RX from XVC failed"));
     }
 
-    urj_log (URJ_LOG_LEVEL_COMM, "RX: %s\n", cable_params->tdo);
+    urj_log (URJ_LOG_LEVEL_COMM, "RX(%d):\t", bits);
+    print_bit_vector(URJ_LOG_LEVEL_COMM, bits, cable_params->tdo);
     return URJ_STATUS_OK;
 }
 
@@ -297,9 +324,9 @@ const urj_cable_driver_t urj_tap_cable_xvc_driver = {
     xvc_set_frequency,
     xvc_clock,
     xvc_get_tdo,
-    urj_tap_cable_generic_transfer, //xvc_transfer,
+    xvc_transfer,
     xvc_set_signal,
     xvc_get_signal,
-    urj_tap_cable_generic_flush_one_by_one, //xvc_flush,
+    urj_tap_cable_generic_flush_using_transfer, //xvc_flush,
     xvc_help
 };
