@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <math.h>
 
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -21,23 +20,15 @@
 static const short XVC_PORT = 2542;
 #define BUFF_SIZE 2048
 
-// bits is supposed to be a little-endian 4-byte integer.
-// The max value is ~ 2048, so we use a short to avoid packing issues.
-typedef struct
-{
-    char shift[6];
-    short bits;
-    short zero;
-    char tx_vector[BUFF_SIZE * 2];
-} xvc_shift_cmd_t;
 
 typedef struct
 {
     int sockfd;
     int max_bytes;
     int valid_bits;
-    xvc_shift_cmd_t cmd_buf;
-    char rx_buf[BUFF_SIZE];
+    char* tms;
+    char* tdi;
+    char* tdo;
 } xvc_parameters_t;
 
 ///////////////////////////////////////////////////////////////////
@@ -102,26 +93,33 @@ static int xvc_connect(urj_cable_t *cable, const urj_param_t *params[])
     cable->chain = NULL;
     cable->params = cable_params;
 
-	return URJ_STATUS_OK;
+    return URJ_STATUS_OK;
 }
 
-static int xvc_send(urj_cable_t *cable, int len)
+static int xvc_send(urj_cable_t *cable, int bits)
 {
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
-    char *msg = &cable_params->cmd_buf.shift[0];
     int numbytes;
-    urj_log(URJ_LOG_LEVEL_COMM, _("TX: (%d) '%s'\n"), len, msg);
-    if (send(cable_params->sockfd, msg, len * 2 + 10, 0))
+    int ret = 0;
+
+    numbytes = (bits + 7) / 8;
+    ret |= send(cable_params->sockfd, "shift:", 6, MSG_MORE);
+    ret |= send(cable_params->sockfd, &bits, 4, MSG_MORE);
+    ret |= send(cable_params->sockfd, cable_params->tms, numbytes, MSG_MORE);
+    ret |= send(cable_params->sockfd, cable_params->tdi, numbytes, 0);
+
+    urj_log (URJ_LOG_LEVEL_COMM, _("TX: (%d) 'shift:%s'\n"), numbytes, &bits); //, cable_params->tms[0], cable_params->tdi[0]);
+    if (ret)
     {
         urj_error_set(URJ_ERROR_FILEIO, _("Send to XVC failed"));
     }
-    numbytes = recv(cable_params->sockfd, cable_params->rx_buf,
-            cable_params->max_bytes, 0);
+    numbytes = recv(cable_params->sockfd, cable_params->tdo, cable_params->max_bytes, 0);
     if (numbytes < 0)
     {
         urj_error_set(URJ_ERROR_FILEIO, _("RX from XVC failed"));
     }
-    urj_log(URJ_LOG_LEVEL_COMM, "RX: %s\n", cable_params->rx_buf);
+
+    urj_log (URJ_LOG_LEVEL_COMM, "RX: %s\n", cable_params->tdo);
     return URJ_STATUS_OK;
 }
 
@@ -149,8 +147,9 @@ static int xvc_init(urj_cable_t *cable)
         char *buffersize = strstr(buf, ":") + 1;
         int buff_size = strtol(buffersize, NULL, 0);
         cable_params->max_bytes = buff_size;
-        strcpy(cable_params->cmd_buf.shift, "shift:");
-//		cable_params->buffer = calloc (1, buff_size);
+        cable_params->tms = calloc (1, buff_size);
+        cable_params->tdi = calloc (1, buff_size);
+        cable_params->tdo = calloc (1, buff_size);
         urj_log(URJ_LOG_LEVEL_COMM, "Max buffer size = %d\n", buff_size);
         return URJ_STATUS_OK;
     }
@@ -185,7 +184,9 @@ static void xvc_free(urj_cable_t *cable)
     // Cleanup extra allocated memory, etc.
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
     urj_log(URJ_LOG_LEVEL_COMM, _("Freeing XVC memory\n"));
-//	free(cable_params->buffer);
+    free(cable_params->tms);
+    free(cable_params->tdi);
+    free(cable_params->tdo);
     free(cable_params);
     free(cable);
 }
@@ -205,21 +206,34 @@ static void xvc_set_frequency(urj_cable_t *cable, uint32_t freq)
 static void xvc_clock(urj_cable_t *cable, int tms, int tdi, int n)
 {
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
-    char tms_vec = 0;
-    char tdi_vec = 0;
-    int num_bytes = (n + 8) / 8;
+    long tms_vec = 0;
+    long tdi_vec = 0;
+    int bits;
+
 
     urj_log(URJ_LOG_LEVEL_COMM, _("Send tms=%x, tdi=%x, n=%d\n"), tms, tdi, n);
+    bits = n;
 
-    cable_params->valid_bits = n;
     if (tms)
-        tms_vec = pow(2, n) - 1;
+        tms_vec = -1;
     if (tdi)
-        tdi_vec = pow(2, n) - 1;
-    cable_params->cmd_buf.bits = n;
-    cable_params->cmd_buf.tx_vector[0] = tms_vec;
-    cable_params->cmd_buf.tx_vector[1] = tdi_vec;
-    xvc_send(cable, num_bytes);
+        tdi_vec = -1;
+    memcpy(cable_params->tms, &tms_vec, sizeof(tms_vec));
+    memcpy(cable_params->tdi, &tdi_vec, sizeof(tms_vec));
+    while (bits >= 32)
+    {
+        xvc_send(cable, 32);
+        bits -= 32;
+    }
+
+    if (tms)
+        tms_vec = (1<<bits) -1;
+    if (tdi)
+        tdi_vec = (1<<bits) -1;
+    memcpy(cable_params->tms, &tms_vec, sizeof(tms_vec));
+    memcpy(cable_params->tdi, &tdi_vec, sizeof(tms_vec));
+    xvc_send(cable, bits);
+
     // low-level
 }
 
@@ -227,10 +241,11 @@ static void xvc_clock(urj_cable_t *cable, int tms, int tdi, int n)
 static int xvc_get_tdo(urj_cable_t *cable)
 {
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
-    char tdo = cable_params->rx_buf[0];
+    char tdo = cable_params->tdo[0];
+    int tdo_bit = tdo & 0x1;
     // low-level
-    urj_log(URJ_LOG_LEVEL_COMM, _("get tdo: %x (%d)\n"), tdo, tdo & 0x1);
-    return tdo & 0x1;
+    urj_log(URJ_LOG_LEVEL_COMM, _("get tdo: %x (%d)\n"), tdo, tdo_bit);
+    return tdo_bit;
 //	return 0;
 }
 
