@@ -69,8 +69,8 @@ urj_tap_cable_generic_transfer (urj_cable_t *cable, int len, const char *in,
     if (out)
         for (i = 0; i < len; i++)
         {
-            out[i] = cable->driver->get_tdo (cable);
             cable->driver->clock (cable, 0, in[i], 1);
+            out[i] = cable->driver->get_tdo (cable);
         }
     else
         for (i = 0; i < len; i++)
