@@ -125,7 +125,6 @@ static int xvc_send(urj_cable_t *cable, int bits)
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
     int numbytes;
     int ret = 0;
-    int ii;
 
     numbytes = (bits + 7) / 8;
     ret |= send(cable_params->sockfd, "shift:", 6, MSG_MORE);
@@ -241,18 +240,22 @@ static void xvc_clock(urj_cable_t *cable, int tms, int tdi, int n)
     urj_log(URJ_LOG_LEVEL_COMM, _("Send tms=%x, tdi=%x, n=%d\n"), tms, tdi, n);
     bits = n;
 
-    if (tms)
-        tms_vec = -1;
-    if (tdi)
-        tdi_vec = -1;
-    memcpy(cable_params->tms, &tms_vec, sizeof(tms_vec));
-    memcpy(cable_params->tdi, &tdi_vec, sizeof(tms_vec));
-    while (bits >= 32)
+    if (bits > 32)
     {
-        xvc_send(cable, 32);
-        bits -= 32;
+        if (tms)
+            tms_vec = -1;
+        if (tdi)
+            tdi_vec = -1;
+        memcpy(cable_params->tms, &tms_vec, sizeof(tms_vec));
+        memcpy(cable_params->tdi, &tdi_vec, sizeof(tms_vec));
+        while (bits >= 32)
+        {
+            xvc_send(cable, 32);
+            bits -= 32;
+        }
     }
 
+    // leftovers
     if (tms)
         tms_vec = (1<<bits) -1;
     if (tdi)
@@ -260,8 +263,6 @@ static void xvc_clock(urj_cable_t *cable, int tms, int tdi, int n)
     memcpy(cable_params->tms, &tms_vec, sizeof(tms_vec));
     memcpy(cable_params->tdi, &tdi_vec, sizeof(tms_vec));
     xvc_send(cable, bits);
-
-    // low-level
 }
 
 /** @return 0 or 1 on success; -1 on failure */
@@ -270,10 +271,26 @@ static int xvc_get_tdo(urj_cable_t *cable)
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
     char tdo = cable_params->tdo[0];
     int tdo_bit = tdo & 0x1;
-    // low-level
     urj_log(URJ_LOG_LEVEL_COMM, _("get tdo: %x (%d)\n"), tdo, tdo_bit);
     return tdo_bit;
-//	return 0;
+}
+
+static void add_bit(char* bit_vector, int bit_number, char value)
+{
+    int bit = bit_number&0x7;
+    int byte = bit_number/8;
+    if (value)
+        bit_vector[byte] |= 1 << bit;
+    else
+        bit_vector[byte] &= ~(1 << bit);
+}
+
+static char get_bit(char* bit_vector, int bit_number)
+{
+    int bit = bit_number&0x7;
+    int byte = bit_number/8;
+    char ret =  (bit_vector[byte] >> bit) & 0x1;
+    return ret;
 }
 
 /** @return nonnegative number, or the number of transferred bits on
@@ -290,13 +307,10 @@ static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
 
     // TMS is set to zero during 'transfer'
     memset(cable_params->tms, 0, numbytes);
-    memset(cable_params->tdi, 0, numbytes);
 
     for(ii = 0; ii < len; ii++)
     {
-        int bit = ii&0x7;
-        int byte = ii/8;
-        cable_params->tdi[byte] |= in[ii] << bit;
+        add_bit(cable_params->tdi, ii, in[ii]);
     }
     urj_log(URJ_LOG_LEVEL_COMM, _("transfer: %d (%d)\n"), len, numbytes);
 
@@ -306,9 +320,7 @@ static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
     {
         for(ii = 0; ii < len; ii++)
         {
-            int bit = ii&0x7;
-            int byte = ii/8;
-            out[ii] = (cable_params->tdo[byte] >> bit) & 0x1;
+            out[ii] = get_bit(cable_params->tdo, ii);
         }
     }
     return URJ_STATUS_OK;
@@ -321,25 +333,14 @@ static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
 /** @return 0 or 1 on success; -1 on failure */
 static int xvc_set_signal(urj_cable_t *cable, int mask, int val)
 {
-    return URJ_STATUS_OK;
+    return URJ_STATUS_FAIL;
 }
 
 /** @return 0 or 1 on success; -1 on failure */
 static int xvc_get_signal(urj_cable_t *cable, urj_pod_sigsel_t sig)
 {
-    return URJ_STATUS_OK;
+    return URJ_STATUS_FAIL;
 }
-
-///////////////////////////////////////////////////////////////////
-// internally used to actually perform JTAG activities
-///////////////////////////////////////////////////////////////////
-static void xvc_flush(urj_cable_t *cable, urj_cable_flush_amount_t how_much)
-{
-    // Use to execute queued activity
-    // See generic.c:urj_tap_cable_generic_flush_using_transfer
-}
-
-
 
 const urj_cable_driver_t urj_tap_cable_xvc_driver = {
     "xvc",
@@ -356,6 +357,6 @@ const urj_cable_driver_t urj_tap_cable_xvc_driver = {
     xvc_transfer,
     xvc_set_signal,
     xvc_get_signal,
-    urj_tap_cable_generic_flush_using_transfer, //xvc_flush,
+    urj_tap_cable_generic_flush_using_transfer,
     xvc_help
 };
