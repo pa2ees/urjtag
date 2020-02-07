@@ -2,6 +2,20 @@
 
 from distutils.core import setup, Extension
 
+import sys
+from pathlib import Path
+
+python_exe_path = Path(sys.executable)
+python_bin_dir = python_exe_path.parent / 'Library' / 'bin'
+if not python_bin_dir.exists:
+    print("Error finding python bin path")
+    sys.exit(1)
+
+ftdi_dir = Path('c:/ftdi/amd64')
+if not ftdi_dir.exists:
+    print("Error finding FTDI driver path")
+    sys.exit(1)
+
 libraries = ['urjtag']
 libraries.extend( w.replace('-l', '') for w in "@LIBFTDI_LIBS@ @FTD2XXLIB@ @LIBUSB_LIBS@ @LIBINTL@".split() if w.replace('-l', '') not in libraries )
 
@@ -12,6 +26,6 @@ setup(name="urjtag",
         Extension("urjtag", ["@srcdir@/chain.c", "@srcdir@/register.c"],
                   define_macros=[('HAVE_CONFIG_H', None)],
                   include_dirs=['@top_srcdir@', '@top_srcdir@/include', '@top_builddir@'],
-                  library_dirs=['@top_builddir@/src/.libs'],
+                  library_dirs=['@top_builddir@/src/.libs', str(python_bin_dir), str(ftdi_dir)],
                   libraries=libraries)
          ])

@@ -14,6 +14,7 @@
 #define MODINIT_ERROR_VAL NULL
 #define MODINIT_SUCCESS_VAL(val) val
 #define MODINIT_DECL(name) PyMODINIT_FUNC PyInit_##name(void)
+#define PyString_FromString PyUnicode_FromString
 
 #else  /* assume python 2 */
 
@@ -34,5 +35,6 @@ struct PyModuleDef {
 };
 #define PyModuleDef_HEAD_INIT 0
 #define PyModule_Create(dp) Py_InitModule3((dp)->name, (dp)->methods, (dp)->doc)
+
 
 #endif
