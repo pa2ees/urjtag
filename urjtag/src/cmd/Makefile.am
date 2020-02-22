@@ -45,6 +45,7 @@ always_enabled_cmd_files = \
 	cmd_part.c \
 	cmd_bus.c \
 	cmd_instruction.c \
+	cmd_get_instruction.c \
 	cmd_shift.c \
 	cmd_dr.c \
 	cmd_get.c \

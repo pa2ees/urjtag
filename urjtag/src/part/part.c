@@ -208,6 +208,14 @@ urj_part_set_instruction (urj_part_t *p, const char *iname)
         p->active_instruction = urj_part_find_instruction (p, iname);
 }
 
+const char* 
+urj_part_get_instruction (urj_part_t *p)
+{
+    if (p)
+        return p->active_instruction->name;
+    return NULL;
+}
+
 int
 urj_part_set_signal (urj_part_t *p, urj_part_signal_t *s, int out, int val)
 {

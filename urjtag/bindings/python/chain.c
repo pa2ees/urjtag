@@ -397,6 +397,29 @@ urj_pyc_set_instruction (urj_pychain_t *self, PyObject *args)
 }
 
 static PyObject *
+urj_pyc_get_instruction (urj_pychain_t *self)
+{
+    char *instname;
+    urj_part_t *part;
+    urj_chain_t *urc = self->urchain;
+
+    if (!urj_pyc_precheck (urc, UPRC_CBL))
+        return NULL;
+
+    part = urj_tap_chain_active_part (urc);
+    if (part == NULL)
+    {
+        PyErr_SetString (UrjtagError, _("No active part on chain"));
+        return NULL;
+    }
+
+    instname = urj_part_get_instruction (part);
+
+
+    return Py_BuildValue ("s", (char*) instname);
+}
+
+static PyObject *
 urj_pyc_shift_ir (urj_pychain_t *self)
 {
     urj_chain_t *urc = self->urchain;
@@ -994,6 +1017,8 @@ static PyMethodDef urj_pyc_methods[] =
      "get the current TCK frequency"},
     {"set_instruction", (PyCFunction) urj_pyc_set_instruction, METH_VARARGS,
      "Set values in the instruction register holding buffer"},
+    {"get_instruction", (PyCFunction) urj_pyc_get_instruction, METH_VARARGS,
+     "Get values in the instruction register holding buffer"},
     {"shift_ir", (PyCFunction) urj_pyc_shift_ir, METH_NOARGS,
      "scan values through the instruction register"},
     {"shift_dr", (PyCFunction) urj_pyc_shift_dr, METH_NOARGS,

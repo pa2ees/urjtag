@@ -71,6 +71,7 @@ urj_data_register_t *urj_part_find_data_register (urj_part_t *p,
 urj_part_signal_t *urj_part_find_signal (urj_part_t *p,
                                          const char *signalname);
 void urj_part_set_instruction (urj_part_t *p, const char *iname);
+const char* urj_part_get_instruction (urj_part_t *p);
 /** @return URJ_STATUS_OK on success; URJ_STATUS_FAIL on error */
 int urj_part_set_signal (urj_part_t *p, urj_part_signal_t *s, int out, int val);
 #define urj_part_set_signal_high(p, s)  urj_part_set_signal ((p), (s), 1, 1)
