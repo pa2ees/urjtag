@@ -319,31 +319,45 @@ static char get_bit(char* bit_vector, int bit_number)
  */
 static int xvc_transfer(urj_cable_t *cable, int len, const char *in, char *out)
 {
-    int numbytes = (len + 7) / 8;
-    int ii;
     xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    int ii;
+    int batch_offset = 0;
+    int remaining_bits = len;
+    int batch_len = len;
+    int max_bits = cable_params->max_bytes*8;
 
     if (!len)
         return URJ_STATUS_FAIL;
 
     // TMS is set to zero during 'transfer'
-    memset(cable_params->tms, 0, numbytes);
-
-    for(ii = 0; ii < len; ii++)
+    memset(cable_params->tms, 0, cable_params->max_bytes);
+    urj_log(URJ_LOG_LEVEL_COMM, _("Transfer: %d (%d)\n"), len, (len+7)/8);
+    while (remaining_bits > 0)
     {
-        add_bit(cable_params->tdi, ii, in[ii]);
-    }
-    urj_log(URJ_LOG_LEVEL_COMM, _("transfer: %d (%d)\n"), len, numbytes);
+        batch_len = remaining_bits;
+        if (remaining_bits > max_bits)
+            batch_len = max_bits;
 
-    xvc_send(cable, len);
-
-    if (out)
-    {
-        for(ii = 0; ii < len; ii++)
+        urj_log(URJ_LOG_LEVEL_COMM, _("Batch of len: %d, offset=%d, Remaining=%d\n"), batch_len, batch_offset, remaining_bits);
+        for(ii = 0; ii < batch_len; ii++)
         {
-            out[ii] = get_bit(cable_params->tdo, ii);
+            add_bit(cable_params->tdi, ii, in[batch_offset + ii]);
         }
+
+        xvc_send(cable, batch_len);
+
+        if (out)
+        {
+            for(ii = 0; ii < batch_len; ii++)
+            {
+                out[batch_offset + ii] = get_bit(cable_params->tdo, ii);
+            }
+        }
+        batch_offset += batch_len;
+        remaining_bits -= batch_len;
+
     }
+
     return URJ_STATUS_OK;
 }
 
