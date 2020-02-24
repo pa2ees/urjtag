@@ -185,6 +185,35 @@ static int xvc_init(urj_cable_t *cable)
 
 
 ///////////////////////////////////////////////////////////////////
+// set bitrate for shifting data through the chain
+///////////////////////////////////////////////////////////////////
+static void xvc_set_frequency(urj_cable_t *cable, uint32_t freq)
+{
+    xvc_parameters_t* cable_params = (xvc_parameters_t*) cable->params;
+    int ret = 0;
+    int numbytes;
+    uint32_t period_ns;
+
+    period_ns = 1e9/freq;
+
+    ret |= send(cable_params->sockfd, "settck:", 7, MSG_MORE);
+    ret |= send(cable_params->sockfd, &period_ns, 4, 0);
+    if (ret)
+    {
+        urj_error_set(URJ_ERROR_FILEIO, _("Send to XVC failed"));
+    }
+    numbytes = recv(cable_params->sockfd, &period_ns, 4, 0);
+    if (numbytes < 0)
+    {
+        urj_error_set(URJ_ERROR_FILEIO, _("RX from XVC failed"));
+    }
+    cable->frequency = 1e9/period_ns;
+    urj_log(URJ_LOG_LEVEL_NORMAL, _("Set XVC clock rate: %d\n"), cable->frequency);
+
+    // send tclk command
+}
+
+///////////////////////////////////////////////////////////////////
 // Cleanup
 ///////////////////////////////////////////////////////////////////
 static void xvc_done(urj_cable_t *cable)
@@ -216,15 +245,6 @@ static void xvc_free(urj_cable_t *cable)
     free(cable_params->tdo);
     free(cable_params);
     free(cable);
-}
-
-///////////////////////////////////////////////////////////////////
-// set bitrate for shifting data through the chain
-///////////////////////////////////////////////////////////////////
-static void xvc_set_frequency(urj_cable_t *cable, uint32_t freq)
-{
-    urj_log(URJ_LOG_LEVEL_COMM, _("Set XVC clock rate\n"));
-    // send tclk command
 }
 
 ///////////////////////////////////////////////////////////////////
