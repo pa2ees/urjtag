@@ -172,7 +172,8 @@ static int xvc_init(urj_cable_t *cable)
     {
         char *buffersize = strstr(buf, ":") + 1;
         int buff_size = strtol(buffersize, NULL, 0);
-        cable_params->max_bytes = buff_size;
+        // Reported buffer size is the input buffer for both TDI and TMS
+        cable_params->max_bytes = buff_size/2;
         cable_params->tms = calloc (1, buff_size);
         cable_params->tdi = calloc (1, buff_size);
         cable_params->tdo = calloc (1, buff_size);
