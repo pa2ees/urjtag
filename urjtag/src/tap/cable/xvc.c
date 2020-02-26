@@ -99,7 +99,7 @@ static void print_bit_vector (urj_log_level_t ll, int len, char *vec)
     int ii;
     int numbytes = (len + 7) / 8;
 
-    if (! ((ll) >= urj_log_state.level))
+    if (ll < urj_log_state.level)
         return;
 
     for (ii = 0; ii < numbytes; ii++)

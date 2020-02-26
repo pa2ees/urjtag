@@ -43,7 +43,7 @@ static void
 print_vector (urj_log_level_t ll, int len, char *vec)
 {
     int i;
-    if (! ((ll) >= urj_log_state.level))
+    if (ll < urj_log_state.level)
         return;
 
     for (i = 0; i < len; i++)
