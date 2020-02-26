@@ -25,4 +25,13 @@ script: |
         ./autogen.sh
         make
 
+deploy:
+  provider: releases
+  api_key: $GITHUB_API_KEY
+  file: ./urjtag/bindings/python/build/lib.linux-x86_64-2.7/urjtag.so
+  edge: true # dpl v2
+  on:
+    all_branches: true
+    tags: false
+
 # l l
