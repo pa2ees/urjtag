@@ -124,6 +124,11 @@ libtap_la_SOURCES += \
 	cable/xpc.c
 endif
 
+if ENABLE_CABLE_XVC
+libtap_la_SOURCES += \
+	cable/xvc.c
+endif
+
 if ENABLE_CABLE_USBBLASTER
 libtap_la_SOURCES += \
 	cable/usbblaster.c

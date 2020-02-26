@@ -1,0 +1,14 @@
+name: Check Commit Message
+
+on: [push]
+
+jobs:
+  check-commit-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for "Billed To"
+        uses: gsactions/commit-message-checker@v1
+        with:
+          pattern: '^((?!billed to).)*$'
+          flags: 'gmi'
+          error: 'Your commit message must not contain "billed to"'

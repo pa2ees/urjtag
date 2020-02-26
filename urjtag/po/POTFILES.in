@@ -129,6 +129,7 @@ src/tap/cable/vision_ep9307.c
 src/tap/cable/wiggler2.c
 src/tap/cable/wiggler.c
 src/tap/cable/xpc.c
+src/tap/cable/xvc.c
 src/tap/chain.c
 src/tap/detect.c
 src/tap/discovery.c

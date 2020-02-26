@@ -43,8 +43,12 @@ static void
 print_vector (urj_log_level_t ll, int len, char *vec)
 {
     int i;
+    if (ll < urj_log_state.level)
+        return;
+
     for (i = 0; i < len; i++)
-        urj_log (ll, "%c", vec[i] ? '1' : '0');
+        printf("%c ", vec[i] ? '1' : '0');
+    printf("\n");
 }
 
 
@@ -65,8 +69,8 @@ urj_tap_cable_generic_transfer (urj_cable_t *cable, int len, const char *in,
     if (out)
         for (i = 0; i < len; i++)
         {
-            out[i] = cable->driver->get_tdo (cable);
             cable->driver->clock (cable, 0, in[i], 1);
+            out[i] = cable->driver->get_tdo (cable);
         }
     else
         for (i = 0; i < len; i++)
@@ -306,15 +310,13 @@ urj_tap_cable_generic_flush_using_transfer (urj_cable_t *cable,
 
             /* @@@@ RFHH check result */
             r = cable->driver->transfer (cable, bits, in, out);
-            urj_log (URJ_LOG_LEVEL_DETAIL, "in: ");
+            urj_log (URJ_LOG_LEVEL_DETAIL, "in:  ");
             print_vector (URJ_LOG_LEVEL_DETAIL, bits, in);
-            urj_log (URJ_LOG_LEVEL_DETAIL, "\n");
             // @@@@ RFHH here always: out != NULL
             if (out)
             {
                 urj_log (URJ_LOG_LEVEL_DETAIL, "out: ");
                 print_vector (URJ_LOG_LEVEL_DETAIL, bits, out);
-                urj_log (URJ_LOG_LEVEL_DETAIL, "\n");
             }
 
             /* Step 4: Pick results from transfer */
