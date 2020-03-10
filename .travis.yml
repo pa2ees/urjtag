@@ -1,15 +1,25 @@
 language: c
+
 sudo: false
+
 compiler:
-- gcc
+  - gcc
+
 addons:
   apt:
     packages:
     - autopoint
     - gettext
+
 install:
-- pip install pathlib --user
-script: "cd urjtag \nsed --in-place -e '/GETTEXT_VERSION/s/0.19/0.18/' configure.ac\n./autogen.sh\nmake\n"
+  - pip install pathlib --user
+
+script: |
+        cd urjtag
+        sed --in-place -e '/GETTEXT_VERSION/s/0.19/0.18/' configure.ac
+        ./autogen.sh
+        make
+
 deploy:
   provider: releases
   api_key:
