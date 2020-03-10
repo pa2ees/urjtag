@@ -12,13 +12,39 @@ addons:
     - gettext
 
 install:
+  #- apt install -y autoconf autopoint libtool pkg-config python-pip
   - pip install pathlib --user
+  ->
+    cat <<EOF > /etc/apt/sources.list.d/xenial.list
+    deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ xenial universe
+    deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ xenial main restricted
+    deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ xenial-updates main restricted universe multiverse
+    deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ xenial-backports main restricted universe multiverse
 
-script: |
-        cd urjtag
-        sed --in-place -e '/GETTEXT_VERSION/s/0.19/0.18/' configure.ac
-        ./autogen.sh
-        make
+    deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ xenial universe
+    deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ xenial main restricted
+    deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse
+    deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
+    EOF
+  - dpkg --add-architecture armhf
+  - apt-get update
+  - apt-get install -y gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-arm-linux-gnueabihf crossbuild-essential-armhf
+  - apt-get install -y libpython2.7-dev:armhf
+
+jobs:
+  include:
+    - stage: build
+      script: |
+              cd urjtag
+              sed --in-place -e '/GETTEXT_VERSION/s/0.19/0.18/' configure.ac
+              ./autogen.sh
+              make -j$(nproc)
+      script: |
+              cd urjtag
+              export CC=arm-linux-gnueabihf-gcc
+              export LDSHARED="arm-linux-gnueabihf-gcc -L/usr/lib/arm-linux-gnueabihf -lpython2.7"
+              CPP=arm-linux-gnueabihf-cpp ./autogen.sh --host=arm-linux
+              make -j$(nproc)
 
 deploy:
   provider: releases
