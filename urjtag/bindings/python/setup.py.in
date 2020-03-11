@@ -30,10 +30,10 @@ elif os.environ['CC'] == 'arm-linux-gnueabihf-gcc': # cross-compiling
     library_dirs.append('/usr/lib/arm-linux-gnueabihf')
     libraries.append('python3.5m')
     extra_link_args.append('-shared')
-    #extra_link_args.append('-nostartfiles')
 
 libraries.extend( w.replace('-l', '') for w in "@LIBFTDI_LIBS@ @FTD2XXLIB@ @LIBUSB_LIBS@ @LIBINTL@".split() if w.replace('-l', '') not in libraries )
 
+# https://docs.python.org/3/distutils/apiref.html#distutils.core.setup
 setup(name="urjtag",
       version="@VERSION@",
       description="urJtag Python Bindings",

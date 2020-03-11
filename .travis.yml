@@ -13,7 +13,6 @@ addons:
 
 install:
   #- apt install -y autoconf autopoint libtool pkg-config python-pip # for testing w/ docker container
-  #- pip install pathlib --user # for Windows build only
   ->
     cat <<EOF > /etc/apt/sources.list.d/xenial.list
     deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ xenial universe
