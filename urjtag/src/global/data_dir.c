@@ -38,23 +38,21 @@ urj_get_data_dir (void)
     return jtag_data_dir;
 }
 
-void
-urj_set_data_dir(const char *data_dir)
+int
+urj_set_data_dir (const char *data_dir)
 {
-    char *jtag_data_dir_internal, *ptr;
-    int needed_len;
+    char *str;
+    int len;
 
-    needed_len = strlen(data_dir) + 1;
-    jtag_data_dir_internal = (char *) malloc (needed_len);
-    strcpy (jtag_data_dir_internal, data_dir);
-    ptr = jtag_data_dir_internal + (needed_len - 1);
-    *ptr = '\0';
-    jtag_data_dir = jtag_data_dir_internal;
+    len = strlen(data_dir);
+    str = (char *) malloc (len + 1);
+    strcpy (str, data_dir);
+		str[len] = '\0';
+    jtag_data_dir = str;
+    return 0;
 }
 
-
 #else
-
 
 const char *
 urj_get_data_dir (void)
@@ -62,4 +60,11 @@ urj_get_data_dir (void)
     return JTAG_DATA_DIR;
 }
 
+int
+urj_set_data_dir (const char *data_dir)
+{
+    return -1;
+}
+
 #endif
+

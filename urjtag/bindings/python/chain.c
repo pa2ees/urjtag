@@ -954,7 +954,8 @@ urj_pyc_set_jtag_data_dir (urj_pychain_t *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "s", &data_dir))
         return NULL;
 
-    urj_set_data_dir(data_dir);
+    if (urj_set_data_dir (data_dir) != 0)
+        return NULL;
 
     return Py_BuildValue ("ss", "Set Data Path to ", data_dir);
 }
