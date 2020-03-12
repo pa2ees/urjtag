@@ -32,6 +32,7 @@ jobs:
         on:
           repo: imsarllc/urjtag
           branch: deploy-artifacts
+          tags: true
     - stage: build # armv7l
       install: SUDO=sudo .ci/install-armv7l.sh
       script: .ci/build-armv7l.sh
@@ -44,3 +45,4 @@ jobs:
         on:
           repo: imsarllc/urjtag
           branch: deploy-artifacts
+          tags: true
