@@ -28,6 +28,7 @@ jobs:
         file:
           - ./urjtag/bindings/python/build/lib.linux-x86_64-3.5/urjtag.so
           - ./urjtag/bindings/python/build/urjtag.cpython-35m-arm-linux-gnueabihf.so
+        skip_cleanup: true
         on:
           repo: imsarllc/urjtag
           branch: deploy-artifacts
