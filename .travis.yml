@@ -19,14 +19,15 @@ jobs:
     - stage: build
       install: SUDO=sudo .ci/install-armv7l.sh
       script: .ci/build-armv7l.sh
-
-deploy:
-  provider: releases
-  api_key:
-    secure: qHljlP/0L/pWj0FVCGJ4auL9go3moYC6UuebmUdoWFtC2jMj5hEHTzydmHoEW+ZxTY3AF82KYdQva4RshmweX5PSx/HSY/GFxaCAlYTJqgHVZpXj5tzfT7POzjLqa84WYaF0kz8c9A/EvKBSsp5C9AyYkh2qkA1KImbqBHOfB3e3aOwvmDfoUV2CmlfSfHFgzXFf2lmmUV9aIE8zsKnmGjTy2qP+QtGDxq3UnMekeqHF+ga53NQSURzqU9cSd6CDl9XX2et0rowCylRKSNfqmejfYVm5rT3bK7pPQv4mxO/Yrwe1FBLJX0uRfxZomkd2Dikx9M55nlNY22jRNvtLzgWv9r3LnHM2um5RFG0oh9q3ybm2Scca6MQHU0K+s5JKlNcIqc6PKKw1lMlGB/7Yd9gEXyAFWQT9JqnWo3S7CJxFNQYtbCEHg4p35lVdlrDX2UWU7YKidbSl/iC00JeMKpvUycM03Je4epHVntHfb9cWM6/fY3x3hpY/hD00KuG+Faq//dy7CkThqdY6r3AmEfW8AI5GuBLKk/s0pHatE7tPeQJxmTjbGOVo2flHsyt9aNPW1ReYk19bGNUHNZtRN/7TsiqREXTtAoXDTaGOSmi6WmF+MIezFvaPqrXKulqJkyXWv+790cJGuy2EE1hiF1kGuPoLenX5TxgOHPGD8kw=
-  file:
-    - ./urjtag/bindings/python/build/lib.linux-x86_64-3.5/urjtag.so
-    - ./urjtag/bindings/python/build/urjtag.cpython-35m-arm-linux-gnueabihf.so
-  on:
-    repo: imsarllc/urjtag
-    branch: deploy-artifacts
+    - stage: deploy
+      script: skip
+      deploy:
+        provider: releases
+        api_key:
+          secure: qHljlP/0L/pWj0FVCGJ4auL9go3moYC6UuebmUdoWFtC2jMj5hEHTzydmHoEW+ZxTY3AF82KYdQva4RshmweX5PSx/HSY/GFxaCAlYTJqgHVZpXj5tzfT7POzjLqa84WYaF0kz8c9A/EvKBSsp5C9AyYkh2qkA1KImbqBHOfB3e3aOwvmDfoUV2CmlfSfHFgzXFf2lmmUV9aIE8zsKnmGjTy2qP+QtGDxq3UnMekeqHF+ga53NQSURzqU9cSd6CDl9XX2et0rowCylRKSNfqmejfYVm5rT3bK7pPQv4mxO/Yrwe1FBLJX0uRfxZomkd2Dikx9M55nlNY22jRNvtLzgWv9r3LnHM2um5RFG0oh9q3ybm2Scca6MQHU0K+s5JKlNcIqc6PKKw1lMlGB/7Yd9gEXyAFWQT9JqnWo3S7CJxFNQYtbCEHg4p35lVdlrDX2UWU7YKidbSl/iC00JeMKpvUycM03Je4epHVntHfb9cWM6/fY3x3hpY/hD00KuG+Faq//dy7CkThqdY6r3AmEfW8AI5GuBLKk/s0pHatE7tPeQJxmTjbGOVo2flHsyt9aNPW1ReYk19bGNUHNZtRN/7TsiqREXTtAoXDTaGOSmi6WmF+MIezFvaPqrXKulqJkyXWv+790cJGuy2EE1hiF1kGuPoLenX5TxgOHPGD8kw=
+        file:
+          - ./urjtag/bindings/python/build/lib.linux-x86_64-3.5/urjtag.so
+          - ./urjtag/bindings/python/build/urjtag.cpython-35m-arm-linux-gnueabihf.so
+        on:
+          repo: imsarllc/urjtag
+          branch: deploy-artifacts
