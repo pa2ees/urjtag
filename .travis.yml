@@ -15,7 +15,7 @@ jobs:
   include:
     - stage: build
       install: sudo apt install -y python3.5-dev
-      script: .ci/build.sh
+      script: .ci/build-x86_64.sh
     - stage: build
       install: SUDO=sudo .ci/install-armv7l.sh
       script: .ci/build-armv7l.sh
