@@ -31,7 +31,7 @@ jobs:
         skip_cleanup: true
         on:
           repo: imsarllc/urjtag
-          branch: deploy-artifacts
+          branch: master
           tags: true
     - stage: build # armv7l
       install: SUDO=sudo .ci/install-armv7l.sh
@@ -44,5 +44,5 @@ jobs:
         skip_cleanup: true
         on:
           repo: imsarllc/urjtag
-          branch: deploy-artifacts
+          branch: master
           tags: true

@@ -1,4 +1,4 @@
-.. image:: https://travis-ci.org/stappersg/urjtag.png?branch=master
+.. image:: https://travis-ci.org/imsarllc/urjtag.svg?branch=master
    :target: https://travis-ci.org/github/imsarllc/urjtag
    :alt: Travis CI build status
 
