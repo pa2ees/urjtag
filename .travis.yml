@@ -12,13 +12,7 @@ addons:
     - gettext
 
 install:
-  #- apt install -y autoconf autopoint libtool pkg-config python-pip # for testing w/ docker container
-  - sudo rm -f /etc/apt/sources.list /etc/apt/sources.list.d/*
-  - cat .ci/xenial.list | sudo tee /etc/apt/sources.list.d/xenial.list
-  - sudo dpkg --add-architecture armhf
-  - sudo apt-get update -yq
-  - sudo apt-get install -yq gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-arm-linux-gnueabihf crossbuild-essential-armhf
-  - sudo apt-get install -yq python3.5-dev:armhf python3.5-dev
+  - SUDO=sudo .ci/install.sh
 
 jobs:
   include:
