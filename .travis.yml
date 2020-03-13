@@ -13,6 +13,9 @@ before_install:
   - sudo apt install -y ruby-dev
   - sudo gem install --no-ri --no-rdoc fpm
   - sudo gem pristine --all
+  - echo $TRAVIS_BUILD_NUMBER
+  - echo $TRAVIS_BUILD_ID
+  - echo $TRAVIS_JOB_ID
 
 jobs:
   include:
