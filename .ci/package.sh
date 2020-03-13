@@ -8,6 +8,9 @@ shift
 pysyspath=/usr/lib/python3.5
 mkdir -p dpkg/$pysyspath
 cp -f $@ dpkg/$pysyspath/
+profile=/etc/profile.d
+mkdir -p dpkg/$profile
+cp -f $wd/urjtag.sh dpkg/$profile
 
 fpm \
  --output-type deb \
@@ -23,7 +26,6 @@ fpm \
  --maintainer 'IMSAR FPGA Team <fpga@imsar.com>' \
  --description 'UrJTAG Python bindings' \
  --url 'https://www.imsar.com/' \
+ --after-install $wd/urjtag.sh \
  --deb-no-default-config-files \
- --deb-systemd $wd/urjtag.service \
- --deb-systemd-restart-after-upgrade \
  .
