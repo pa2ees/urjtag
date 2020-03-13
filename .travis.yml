@@ -17,7 +17,7 @@ before_install:
 jobs:
   include:
     - stage: build # x86_64
-      install: sudo apt install -y python3.5-dev
+      install: sudo apt install -yq python3.5-dev
       script: .ci/build-x86_64.sh
       deploy:
         provider: releases

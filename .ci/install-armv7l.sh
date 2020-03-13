@@ -3,14 +3,14 @@
 SUDO=${SUDO:-}
 
 # for testing w/ docker container
-[ "${SUDO}" == "sudo" ] || apt install -y autoconf autopoint libtool pkg-config
+[ "${SUDO}" == "sudo" ] || apt install -yq autoconf autopoint libtool pkg-config
 
 # ARM GNU compiler utilities
 ${SUDO} rm -f /etc/apt/sources.list /etc/apt/sources.list.d/* # eliminates 404 errors w/ apt update
 cat .ci/xenial.list | ${SUDO} tee /etc/apt/sources.list.d/xenial.list
 ${SUDO} dpkg --add-architecture armhf
 ${SUDO} apt update || :
-${SUDO} apt install -y gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf crossbuild-essential-armhf
+${SUDO} apt install -yq gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf crossbuild-essential-armhf
 
 # Python
 PY_VER=3.5.2
