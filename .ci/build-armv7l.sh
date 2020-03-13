@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 pushd urjtag
 
 # use `export` for setup.py
@@ -29,6 +31,9 @@ fpm \
  --maintainer 'IMSAR FPGA Team <fpga@imsar.com>' \
  --description 'UrJTAG Python bindings' \
  --url 'https://www.imsar.com/' \
+ --deb-no-default-config-files \
+ --deb-systemd $wd/urjtag.service \
+ --deb-systemd-restart-after-upgrade \
  .
 
 popd # urjtag

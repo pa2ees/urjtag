@@ -12,6 +12,7 @@ addons:
 before_install:
   - sudo apt install -y ruby-dev
   - sudo gem install --no-ri --no-rdoc fpm
+  - sudo gem pristine --all
 
 jobs:
   include:

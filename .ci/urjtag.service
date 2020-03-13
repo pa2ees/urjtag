@@ -1,0 +1,9 @@
+[Unit]
+Description=Set LD_LIBRARY_PATH to /usr/lib/python3.5 for runtime linking of liburjtag.so
+
+[Service]
+Type=oneshot
+ExecStart=-/bin/bash -c 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib/python3.5'
+
+[Install]
+WantedBy=multi-user.target
