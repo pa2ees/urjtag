@@ -1,4 +1,10 @@
-#!/bin/bash -ex
+#!/bin/bash -e
+
+if [ $# -lt 2 ]; then
+  echo "USAGE: $0 ARCH PYLIB_FILES"
+  exit 1
+fi
+set -x
 
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
