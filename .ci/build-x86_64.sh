@@ -5,7 +5,7 @@ wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 pushd urjtag
 
 sed --in-place -e '/GETTEXT_VERSION/s/0.19/0.18/' configure.ac
-PYTHON=/usr/bin/python3.5 ./autogen.sh
+PYTHON=/usr/bin/python3.5 ./autogen.sh --enable-stapl
 make -j$(nproc)
 find . -name "*urjtag*.so*"
 

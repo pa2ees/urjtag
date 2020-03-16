@@ -7,7 +7,8 @@ pushd urjtag
 # use `export` for setup.py
 export CC=arm-linux-gnueabihf-gcc
 export LDSHARED=arm-linux-gnueabihf-gcc
-CPP=arm-linux-gnueabihf-cpp PYTHON=/usr/bin/python3.5 ./autogen.sh --host=arm-linux --build=armv7l
+CPP=arm-linux-gnueabihf-cpp PYTHON=/usr/bin/python3.5 \
+ ./autogen.sh --host=arm-linux --build=armv7l --enable-stapl
 make -j$(nproc)
 find . -name "*urjtag*.so*"
 
