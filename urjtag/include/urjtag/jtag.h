@@ -59,5 +59,6 @@ urj_endian_t urj_endian_from_string (const char *);
  */
 void urj_set_argv0(const char *argv0);
 const char *urj_get_data_dir (void);
-void urj_set_data_dir(const char *data_dir);
+int urj_set_data_dir (const char *data_dir);
+
 #endif /* URJ_JTAG_H */
