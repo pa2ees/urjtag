@@ -13,6 +13,7 @@ before_install:
   - sudo apt install -y ruby-dev
   - sudo gem install --no-ri --no-rdoc fpm
   - sudo gem pristine --all
+  - export SUDO=sudo
   - echo $TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_BUILD_ID
   - echo $TRAVIS_JOB_ID
@@ -20,7 +21,7 @@ before_install:
 jobs:
   include:
     - stage: build # x86_64
-      install: sudo apt install -yq python3.5-dev
+      install: .ci/install-x86_64.sh
       script: .ci/build-x86_64.sh
       deploy:
         provider: releases
@@ -34,7 +35,7 @@ jobs:
           branch: master
           tags: true
     - stage: build # armv7l
-      install: SUDO=sudo .ci/install-armv7l.sh
+      install: .ci/install-armv7l.sh
       script: .ci/build-armv7l.sh
       deploy:
         provider: releases

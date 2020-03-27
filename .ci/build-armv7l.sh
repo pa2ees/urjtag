@@ -1,10 +1,15 @@
 #!/bin/bash -ex
 
+[ "${SUDO:-}" == "sudo" ] && travis=true || travis=false
+
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# docker container only
+$travis || $wd/clean.sh
 
 pushd urjtag
 
-# use `export` for setup.py
+# `export` required for setup.py
 export CC=arm-linux-gnueabihf-gcc
 export LDSHARED=arm-linux-gnueabihf-gcc
 CPP=arm-linux-gnueabihf-cpp PYTHON=/usr/bin/python3.5 \

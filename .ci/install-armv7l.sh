@@ -1,19 +1,20 @@
 #!/bin/bash -ex
 
-SUDO=${SUDO:-}
+wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+$wd/install-common.sh
 
-# for testing w/ docker container
-[ "${SUDO}" == "sudo" ] || apt install -yq autoconf autopoint libtool pkg-config
+SUDO=${SUDO:-}
 
 # ARM GNU compiler utilities
 ${SUDO} rm -f /etc/apt/sources.list /etc/apt/sources.list.d/* # eliminates 404 errors w/ apt update
 cat .ci/xenial.list | ${SUDO} tee /etc/apt/sources.list.d/xenial.list
 ${SUDO} dpkg --add-architecture armhf
 ${SUDO} apt update || :
-${SUDO} apt install -yq gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf crossbuild-essential-armhf
+${SUDO} apt install -yq gcc-arm-linux-gnueabihf crossbuild-essential-armhf
 
 # Python
 PY_VER=3.5.2
+apt install -yq wget
 wget -q https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz && tar xf Python-${PY_VER}.tgz
 pushd Python-${PY_VER}
 echo ac_cv_file__dev_ptmx=no > CONFIG_SITE

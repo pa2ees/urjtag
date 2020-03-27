@@ -1,0 +1,5 @@
+ubuntu-ruby
+setup.py
+dpkg
+*.so
+*.deb
