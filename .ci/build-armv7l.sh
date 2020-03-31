@@ -22,6 +22,7 @@ cp -f \
  urjtag.cpython-35m-arm-linux-gnueabihf.so
 $wd/package.sh \
  armhf \
+ src/apps/jtag/jtag \
  src/.libs/liburjtag.so.0 \
  urjtag.cpython-35m-arm-linux-gnueabihf.so
 
