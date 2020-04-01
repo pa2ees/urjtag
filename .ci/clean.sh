@@ -5,4 +5,4 @@ rm -rf \
  urjtag/dpkg \
  urjtag/urjtag.cpython*.so \
  urjtag/urjtag*.deb
-[ ! -f $gb/urjtag/Makefile ] || make -C $gb/urjtag distclean
+[ ! -f $gb/urjtag/Makefile ] || make -C $gb/urjtag distclean || :
