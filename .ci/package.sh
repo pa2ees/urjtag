@@ -52,3 +52,6 @@ fpm \
  --before-remove before-remove.sh \
  --deb-no-default-config-files \
  .
+
+rm -f after-install.sh
+rm -f before-remove.sh
