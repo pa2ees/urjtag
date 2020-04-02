@@ -1,0 +1,24 @@
+instruction length 6
+register DIR 32
+register USERCODE 32
+register BSR 812
+register BYPASS 1
+register DATAREG 57
+instruction XSC_DNA 010111 DATAREG
+instruction EXTEST_TRAIN 111101 BSR
+instruction EXTEST_PULSE 111100 BSR
+instruction HIGHZ 001010 BYPASS
+instruction USERCODE 001000 DIR
+instruction PRELOAD 000001 BSR
+instruction SAMPLE/PRELOAD 000001 BSR
+instruction EXTEST 100110 BSR
+instruction BYPASS 111111 BYPASS
+instruction IDCODE 001001 DIR
+instruction CFG_IN 000101 BYPASS
+instruction CFG_OUT 000100 BYPASS
+instruction ISC_ENABLE  010000 BYPASS
+instruction ISC_DISBLE 010110 BYPASS
+instruction JSTART 001100 BYPASS
+instruction JSHUTDOWN 001101 BYPASS
+instruction JPROGRAM 001011 BYPASS
+
