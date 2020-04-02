@@ -30,7 +30,7 @@ if os.name == 'nt': # Windows
         print("Error finding FTDI driver path")
         sys.exit(1)
     library_dirs.append(str(ftdi_di))
-elif os.environ['CC'] != None and os.environ['CC'] == 'arm-linux-gnueabihf-gcc': # cross-compiling
+elif os.environ.get('CC') == 'arm-linux-gnueabihf-gcc': # cross-compiling
     include_dirs.append('/usr/local/include/python3.5m') # Python.h
     include_dirs.append('/usr/arm-linux-gnueabihf/include/python3.5m') # pyconfig.h
     library_dirs.append('/usr/arm-linux-gnueabihf/lib')
