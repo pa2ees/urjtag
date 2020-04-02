@@ -5,7 +5,7 @@
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # docker container only
-$travis || $wd/clean.sh
+$travis || ($wd/install-x86_64.sh && $wd/clean.sh)
 
 pushd urjtag
 
