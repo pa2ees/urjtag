@@ -21,7 +21,7 @@ find . -name "*urjtag*.so*"
 $wd/package.sh \
  amd64 \
  src/apps/jtag/jtag \
- src/.libs/liburjtag.so.0 \
+ src/.libs/liburjtag.so.0.0.0 \
  bindings/python/build/lib.linux-x86_64-3.5/urjtag.cpython-35m-x86_64-linux-gnu.so
 
 popd # urjtag
