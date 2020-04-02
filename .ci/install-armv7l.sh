@@ -18,7 +18,7 @@ fi
 if [ ! -f /usr/local/include/python3.5m/Python.h ]; then
   PY_VER=3.5.2
   apt install -yq wget
-  wget -q https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz && tar xf Python-${PY_VER}.tgz
+  wget -qN https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz && tar xf Python-${PY_VER}.tgz
   pushd Python-${PY_VER}
   echo ac_cv_file__dev_ptmx=no > CONFIG_SITE
   echo ac_cv_file__dev_ptc=no >> CONFIG_SITE
