@@ -10,7 +10,9 @@ wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 arch=$1
 shift
-jtag=$1
+bin=$1
+shift
+share=$1
 shift
 
 pysyspath=/usr/lib/python3.5
@@ -20,7 +22,9 @@ profile=/etc/profile.d
 mkdir -p dpkg/$profile
 cp -f $wd/urjtag.sh dpkg/$profile
 mkdir -p dpkg/usr/bin
-cp -f $jtag dpkg/usr/bin/
+cp -f $bin dpkg/usr/bin/
+mkdir -p dpkg/usr/share
+cp -rf $share dpkg/usr/share/
 
 # create after-install script
 cat <<EOF > after-install.sh

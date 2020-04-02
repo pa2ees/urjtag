@@ -16,12 +16,11 @@ export CC=arm-linux-gnueabihf-gcc
 export LDSHARED=arm-linux-gnueabihf-gcc
 CPP=arm-linux-gnueabihf-cpp PYTHON=/usr/bin/python3.5 LDFLAGS="-L/usr/lib/python3.5" \
  ./autogen.sh --host=arm-linux --build=$build --enable-stapl \
- --enable-relocatable --bindir=/usr/bin --prefix=/usr
+ --enable-relocatable --prefix=/usr
 make -j$(nproc)
 find . -name "*urjtag*.so*"
 
 make install
-cp /usr/bin/jtag src/apps/jtag/jtag-$build-relocatable
 
 cp -f \
  bindings/python/build/lib.linux-x86_64-3.5/urjtag.cpython-35m-x86_64-linux-gnu.so \
@@ -29,6 +28,7 @@ cp -f \
 $wd/package.sh \
  armhf \
  /usr/bin/jtag \
+ /usr/share/urjtag \
  src/.libs/liburjtag.so.0.0.0 \
  urjtag.cpython-35m-arm-linux-gnueabihf.so
 
