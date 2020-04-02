@@ -4,8 +4,10 @@
 
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+build=x86_64
+
 # docker container only
-$travis || ($wd/install-x86_64.sh && $wd/clean.sh)
+$travis || ($wd/install-$build.sh && $wd/clean.sh)
 
 pushd urjtag
 
@@ -13,15 +15,19 @@ pushd urjtag
 
 # `export` required for setup.py
 export CC=gcc
-PYTHON=/usr/bin/python3.5 ./autogen.sh --enable-stapl
+PYTHON=/usr/bin/python3.5 ./autogen.sh --enable-stapl \
+ --enable-relocatable --bindir=/usr/bin --prefix=/usr
 make -j$(nproc)
 ! $travis || git checkout HEAD $(git rev-parse --show-toplevel)/urjtag/configure.ac
 find . -name "*urjtag*.so*"
 
+make install
+cp /usr/bin/jtag src/apps/jtag/jtag-$build-relocatable
+
 $wd/package.sh \
  amd64 \
- src/apps/jtag/jtag \
+ /usr/bin/jtag \
  src/.libs/liburjtag.so.0.0.0 \
- bindings/python/build/lib.linux-x86_64-3.5/urjtag.cpython-35m-x86_64-linux-gnu.so
+ bindings/python/build/lib.linux-$build-3.5/urjtag.cpython-35m-$build-linux-gnu.so
 
 popd # urjtag

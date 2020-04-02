@@ -4,8 +4,10 @@
 
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+build=armv7l
+
 # docker container only
-$travis || ($wd/install-armv7l.sh && $wd/clean.sh)
+$travis || ($wd/install-$build.sh && $wd/clean.sh)
 
 pushd urjtag
 
@@ -13,13 +15,13 @@ pushd urjtag
 export CC=arm-linux-gnueabihf-gcc
 export LDSHARED=arm-linux-gnueabihf-gcc
 CPP=arm-linux-gnueabihf-cpp PYTHON=/usr/bin/python3.5 LDFLAGS="-L/usr/lib/python3.5" \
- ./autogen.sh --host=arm-linux --build=armv7l --enable-stapl \
+ ./autogen.sh --host=arm-linux --build=$build --enable-stapl \
  --enable-relocatable --bindir=/usr/bin --prefix=/usr
 make -j$(nproc)
 find . -name "*urjtag*.so*"
 
 make install
-cp /usr/bin/jtag src/apps/jtag/jtag-relocatable
+cp /usr/bin/jtag src/apps/jtag/jtag-$build-relocatable
 
 cp -f \
  bindings/python/build/lib.linux-x86_64-3.5/urjtag.cpython-35m-x86_64-linux-gnu.so \
