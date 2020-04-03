@@ -15,7 +15,10 @@ pushd urjtag
 
 # `export` required for setup.py
 export CC=gcc
-PYTHON=/usr/bin/python3.5 ./autogen.sh --enable-stapl \
+PYTHON=/usr/bin/python3.5 ./autogen.sh \
+ --enable-svf \
+ --enable-bsdl \
+ --enable-stapl \
  --enable-relocatable --prefix=/usr
 make -j$(nproc)
 ! $travis || git checkout HEAD $(git rev-parse --show-toplevel)/urjtag/configure.ac

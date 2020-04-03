@@ -18,14 +18,26 @@ fi
 if [ ! -f /usr/local/include/python3.5m/Python.h ]; then
   PY_VER=3.5.2
   apt install -yq wget
-  wget -qN https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz && tar xf Python-${PY_VER}.tgz
+  wget -qN https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz
+  tar xf Python-${PY_VER}.tgz
   pushd Python-${PY_VER}
   echo ac_cv_file__dev_ptmx=no > CONFIG_SITE
   echo ac_cv_file__dev_ptc=no >> CONFIG_SITE
-  CC=arm-linux-gnueabihf-gcc CPP=arm-linux-gnueabihf-cpp READELF=arm-linux-gnueabihf-readelf CONFIG_SITE=CONFIG_SITE \
-  ./configure --host=arm-linux --build=armv7l --enable-shared --disable-ipv6 --exec-prefix=/usr/arm-linux-gnueabihf
+  CONFIG_SITE=CONFIG_SITE \
+   CC=arm-linux-gnueabihf-gcc CPP=arm-linux-gnueabihf-cpp \
+   READELF=arm-linux-gnueabihf-readelf \
+   ./configure \
+   --host=arm-linux-gnueabihf \
+   --build=armv7l \
+   --enable-shared \
+   --disable-ipv6 \
+   --exec-prefix=/usr/arm-linux-gnueabihf
   make -j$(nproc)
   ${SUDO} make -j$(nproc) install
   popd
   ${SUDO} rm -rf Python-${PY_VER}*
 fi
+
+#[ -f /usr/bin/flex ] || ${SUDO} apt install -y flex
+#[ -f /usr/bin/bison ] || ${SUDO} apt install -y bison
+#dpkg -l gawk || ${SUDO} apt install -y gawk

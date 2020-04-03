@@ -1,4 +1,0 @@
-#!/usr/bin/jtag
-cable xvc address=127.0.0.1
-detect
-svf cassini_1.svf
