@@ -17,7 +17,7 @@ fi
 # Python
 if [ ! -f /usr/local/include/python3.5m/Python.h ]; then
   PY_VER=3.5.2
-  apt install -yq wget
+  ${SUDO} apt install -yq wget
   wget -qN https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz
   tar xf Python-${PY_VER}.tgz
   pushd Python-${PY_VER}

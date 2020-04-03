@@ -15,11 +15,12 @@ pushd urjtag
 
 # `export` required for setup.py
 export CC=gcc
+prefix=$wd/usr
 PYTHON=/usr/bin/python3.5 ./autogen.sh \
  --enable-svf \
  --enable-bsdl \
  --enable-stapl \
- --enable-relocatable --prefix=/usr
+ --enable-relocatable --prefix=$prefix
 make -j$(nproc)
 ! $travis || git checkout HEAD $(git rev-parse --show-toplevel)/urjtag/configure.ac
 find . -name "*urjtag*.so*"
@@ -28,8 +29,8 @@ make install
 
 $wd/package.sh \
  amd64 \
- /usr/bin/jtag \
- /usr/share/urjtag \
+ $prefix/bin/jtag \
+ $prefix/share/urjtag \
  src/.libs/liburjtag.so.0.0.0 \
  bindings/python/build/lib.linux-$build-3.5/urjtag.cpython-35m-$build-linux-gnu.so
 

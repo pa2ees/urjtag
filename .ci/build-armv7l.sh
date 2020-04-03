@@ -14,13 +14,14 @@ pushd urjtag
 # `export` required for setup.py
 export CC=arm-linux-gnueabihf-gcc
 export LDSHARED=arm-linux-gnueabihf-gcc
+prefix=$wd/usr
 CPP=arm-linux-gnueabihf-cpp PYTHON=/usr/bin/python3.5 \
  ./autogen.sh \
  --host=arm-linux-gnueabihf \
  --enable-svf \
  --enable-bsdl \
  --enable-stapl \
- --enable-relocatable --prefix=/usr
+ --enable-relocatable --prefix=$prefix
 
 # copy auto-generated files
 cp src/bsdl/bsdl_bison.c.copy src/bsdl/bsdl_bison.c
@@ -43,8 +44,8 @@ cp -f \
  urjtag.cpython-35m-arm-linux-gnueabihf.so
 $wd/package.sh \
  armhf \
- /usr/bin/jtag \
- /usr/share/urjtag \
+ $prefix/bin/jtag \
+ $prefix/share/urjtag \
  src/.libs/liburjtag.so.0.0.0 \
  urjtag.cpython-35m-arm-linux-gnueabihf.so
 
