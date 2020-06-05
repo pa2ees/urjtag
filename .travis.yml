@@ -16,7 +16,7 @@ before_install:
   - export SUDO=sudo
   - export MAJOR=0
   - export MINOR=0
-  - export PATCH=0
+  - export PATCH=1
   - echo $TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_BUILD_ID
   - echo $TRAVIS_JOB_ID
