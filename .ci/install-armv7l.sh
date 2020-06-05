@@ -38,6 +38,4 @@ if [ ! -f /usr/local/include/python3.5m/Python.h ]; then
   ${SUDO} rm -rf Python-${PY_VER}*
 fi
 
-#[ -f /usr/bin/flex ] || ${SUDO} apt install -y flex
-#[ -f /usr/bin/bison ] || ${SUDO} apt install -y bison
 #dpkg -l gawk || ${SUDO} apt install -y gawk
