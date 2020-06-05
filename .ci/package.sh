@@ -33,15 +33,15 @@ PATCH=${PATCH:-0}
 # create after-install script
 cat <<EOF > after-install.sh
 cd $pysyspath
-ln -sf liburjtag.so.${MAJOR}.${MINOR}.${PATCH} liburjtag.so.${MAJOR}
-ln -sf liburjtag.so.${MAJOR}.${MINOR}.${PATCH} liburjtag.so
+ln -sf liburjtag.so.0.0.0 liburjtag.so.0
+ln -sf liburjtag.so.0.0.0 liburjtag.so
 EOF
 cat $wd/urjtag.sh >> after-install.sh
 
 # create before-remove script
 cat <<EOF > before-remove.sh
 rm -f $pysyspath/liburjtag.so
-rm -f $pysyspath/liburjtag.so.${MAJOR}
+rm -f $pysyspath/liburjtag.so.0
 EOF
 
 fpm \
