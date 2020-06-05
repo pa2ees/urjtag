@@ -34,7 +34,7 @@ typedef struct
  * ---------------------------------------------------------------------- */
 static void xvc_help(urj_log_level_t ll, const char *cablename)
 {
-	urj_log(ll, "Usage: cable %s IPADDRESS", cablename);
+    urj_log(ll, "Usage: cable %s address=<ip_address>\n\n", cablename);
 }
 
 /* ----------------------------------------------------------------------
@@ -44,9 +44,9 @@ static int xvc_connect(urj_cable_t *cable, const urj_param_t *params[])
 {
     xvc_parameters_t *cable_params;
     struct sockaddr_in sa;
-	const char* address;
+    const char* address;
 
-    if (params == NULL || params[0]->key != URJ_CABLE_PARAM_KEY_ADDRESS)
+    if (params == NULL || params[0] == NULL || params[0]->key != URJ_CABLE_PARAM_KEY_ADDRESS)
     {
         urj_error_set (URJ_ERROR_SYNTAX, _("missing required address\n"));
         xvc_help (URJ_ERROR_SYNTAX, "xvc");
@@ -68,7 +68,6 @@ static int xvc_connect(urj_cable_t *cable, const urj_param_t *params[])
 
     urj_log (URJ_LOG_LEVEL_NORMAL,_("Connecting to XVC server\n"));
 
-
     if ((cable_params->sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         urj_error_set(URJ_ERROR_NOTFOUND, _("Unable to setup TCP socket"));
         return URJ_STATUS_FAIL;
@@ -79,7 +78,7 @@ static int xvc_connect(urj_cable_t *cable, const urj_param_t *params[])
     inet_pton(AF_INET, address, &(sa.sin_addr));
     bzero(&(sa.sin_zero), 8);     /* zero the rest of the struct */
 
-	urj_log (URJ_LOG_LEVEL_COMM, _("Connecting to server: %s\n"), address);
+    urj_log (URJ_LOG_LEVEL_COMM, _("Connecting to server: %s\n"), address);
 
     if (-1 == connect(cable_params->sockfd, (struct sockaddr *)&sa, sizeof(struct sockaddr))) {
         perror("connect");

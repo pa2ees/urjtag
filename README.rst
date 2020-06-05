@@ -10,3 +10,5 @@ Software for `JTAG <https://en.wikipedia.org/wiki/JTAG>`
 Project homepage is at http://urjtag.org
 
 Mailinglist is the primary communication channel
+
+Fork of UrJTAG found at https://repo.or.cz/w/urjtag.git
