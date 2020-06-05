@@ -26,18 +26,22 @@ cp -f $bin dpkg/usr/bin/
 mkdir -p dpkg/usr/share
 cp -rf $share dpkg/usr/share/
 
+MAJOR=${MAJOR:-0}
+MINOR=${MINOR:-0}
+PATCH=${PATCH:-0}
+
 # create after-install script
 cat <<EOF > after-install.sh
 cd $pysyspath
-ln -sf liburjtag.so.0.0.0 liburjtag.so.0
-ln -sf liburjtag.so.0.0.0 liburjtag.so
+ln -sf liburjtag.so.${MAJOR}.${MINOR}.${PATCH} liburjtag.so.${MAJOR}
+ln -sf liburjtag.so.${MAJOR}.${MINOR}.${PATCH} liburjtag.so
 EOF
 cat $wd/urjtag.sh >> after-install.sh
 
 # create before-remove script
 cat <<EOF > before-remove.sh
 rm -f $pysyspath/liburjtag.so
-rm -f $pysyspath/liburjtag.so.0
+rm -f $pysyspath/liburjtag.so.${MAJOR}
 EOF
 
 fpm \
@@ -46,7 +50,7 @@ fpm \
  --chdir dpkg \
  --force \
  --name urjtag \
- --version 0.0.0 \
+ --version ${MAJOR}.${MINOR}.${PATCH} \
  --iteration ${TRAVIS_BUILD_NUMBER:-0} \
  --license 'proprietary' \
  --vendor 'IMSAR LLC' \

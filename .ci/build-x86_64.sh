@@ -27,11 +27,15 @@ find . -name "*urjtag*.so*"
 
 make install
 
+MAJOR=${MAJOR:-0}
+MINOR=${MINOR:-0}
+PATCH=${PATCH:-0}
+
 $wd/package.sh \
  amd64 \
  $prefix/bin/jtag \
  $prefix/share/urjtag \
- src/.libs/liburjtag.so.0.0.0 \
+ src/.libs/liburjtag.so.${MAJOR}.${MINOR}.${PATCH} \
  bindings/python/build/lib.linux-$build-3.5/urjtag.cpython-35m-$build-linux-gnu.so
 
 popd # urjtag
