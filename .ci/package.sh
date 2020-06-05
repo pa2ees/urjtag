@@ -51,7 +51,7 @@ fpm \
  --force \
  --name urjtag \
  --version ${MAJOR}.${MINOR}.${PATCH} \
- --iteration ${TRAVIS_BUILD_NUMBER:-0} \
+ --iteration ${BUILD_NUMBER:-0} \
  --license 'proprietary' \
  --vendor 'IMSAR LLC' \
  --architecture $arch \

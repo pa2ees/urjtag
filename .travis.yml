@@ -17,6 +17,7 @@ before_install:
   - export MAJOR=0
   - export MINOR=0
   - export PATCH=1
+  - export BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_BUILD_ID
   - echo $TRAVIS_JOB_ID
@@ -30,7 +31,7 @@ jobs:
         provider: releases
         token:
           secure: qHljlP/0L/pWj0FVCGJ4auL9go3moYC6UuebmUdoWFtC2jMj5hEHTzydmHoEW+ZxTY3AF82KYdQva4RshmweX5PSx/HSY/GFxaCAlYTJqgHVZpXj5tzfT7POzjLqa84WYaF0kz8c9A/EvKBSsp5C9AyYkh2qkA1KImbqBHOfB3e3aOwvmDfoUV2CmlfSfHFgzXFf2lmmUV9aIE8zsKnmGjTy2qP+QtGDxq3UnMekeqHF+ga53NQSURzqU9cSd6CDl9XX2et0rowCylRKSNfqmejfYVm5rT3bK7pPQv4mxO/Yrwe1FBLJX0uRfxZomkd2Dikx9M55nlNY22jRNvtLzgWv9r3LnHM2um5RFG0oh9q3ybm2Scca6MQHU0K+s5JKlNcIqc6PKKw1lMlGB/7Yd9gEXyAFWQT9JqnWo3S7CJxFNQYtbCEHg4p35lVdlrDX2UWU7YKidbSl/iC00JeMKpvUycM03Je4epHVntHfb9cWM6/fY3x3hpY/hD00KuG+Faq//dy7CkThqdY6r3AmEfW8AI5GuBLKk/s0pHatE7tPeQJxmTjbGOVo2flHsyt9aNPW1ReYk19bGNUHNZtRN/7TsiqREXTtAoXDTaGOSmi6WmF+MIezFvaPqrXKulqJkyXWv+790cJGuy2EE1hiF1kGuPoLenX5TxgOHPGD8kw=
-        file: urjtag/urjtag_${MAJOR}.${MINOR}.${PATCH}-${TRAVIS_BUILD_NUMBER}_amd64.deb
+        file: urjtag/urjtag_${MAJOR}.${MINOR}.${PATCH}-${BUILD_NUMBER}_amd64.deb
         skip_cleanup: true
         on:
           repo: imsarllc/urjtag
@@ -43,7 +44,7 @@ jobs:
         provider: releases
         token:
           secure: qHljlP/0L/pWj0FVCGJ4auL9go3moYC6UuebmUdoWFtC2jMj5hEHTzydmHoEW+ZxTY3AF82KYdQva4RshmweX5PSx/HSY/GFxaCAlYTJqgHVZpXj5tzfT7POzjLqa84WYaF0kz8c9A/EvKBSsp5C9AyYkh2qkA1KImbqBHOfB3e3aOwvmDfoUV2CmlfSfHFgzXFf2lmmUV9aIE8zsKnmGjTy2qP+QtGDxq3UnMekeqHF+ga53NQSURzqU9cSd6CDl9XX2et0rowCylRKSNfqmejfYVm5rT3bK7pPQv4mxO/Yrwe1FBLJX0uRfxZomkd2Dikx9M55nlNY22jRNvtLzgWv9r3LnHM2um5RFG0oh9q3ybm2Scca6MQHU0K+s5JKlNcIqc6PKKw1lMlGB/7Yd9gEXyAFWQT9JqnWo3S7CJxFNQYtbCEHg4p35lVdlrDX2UWU7YKidbSl/iC00JeMKpvUycM03Je4epHVntHfb9cWM6/fY3x3hpY/hD00KuG+Faq//dy7CkThqdY6r3AmEfW8AI5GuBLKk/s0pHatE7tPeQJxmTjbGOVo2flHsyt9aNPW1ReYk19bGNUHNZtRN/7TsiqREXTtAoXDTaGOSmi6WmF+MIezFvaPqrXKulqJkyXWv+790cJGuy2EE1hiF1kGuPoLenX5TxgOHPGD8kw=
-        file: urjtag/urjtag_${MAJOR}.${MINOR}.${PATCH}-${TRAVIS_BUILD_NUMBER}_armhf.deb
+        file: urjtag/urjtag_${MAJOR}.${MINOR}.${PATCH}-${BUILD_NUMBER}_armhf.deb
         skip_cleanup: true
         on:
           repo: imsarllc/urjtag
