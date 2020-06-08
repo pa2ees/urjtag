@@ -20,27 +20,40 @@ def promotionConfig = [
     'failFast'           : true
 ]
 
-node('merlin')
-{
-  stage('Checkout')
-  {
+node('merlin') {
+  stage('Checkout') {
     cleanWs()
     checkout scm
+    sh "[ -f ubuntu-ruby ] || wget -qN https://hub.docker.com/r/travisci/ubuntu-ruby"
   }
-  stage('Build x86_64')
-  {
-    sh "build=x86_64 BUILD_NUMBER=${env.BUILD_NUMBER} .ci/jenkins_build.sh"
+
+  def workdir = pwd()
+  def MAJOR = 0
+  def MINOR = 0
+  def PATCH = 1
+
+  docker.withRegistry('https://embedded-docker-release.artifactory.imsar.us') {
+    docker.image('travisci_ubuntu-ruby_16.04_armv7l').inside("--workdir=${workdir}") {
+      stage('Build armv7l') {
+        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} .ci/build-armv7l.sh && \
+cp urjtag/urjtag_*.*.*-*_*.deb ."
+      }
+    }
   }
-  stage('Build armv7l')
-  {
-    sh "build=armv7l BUILD_NUMBER=${env.BUILD_NUMBER} .ci/jenkins_build.sh"
+
+  docker.withRegistry('https://embedded-docker-release.artifactory.imsar.us') {
+    docker.image('travisci_ubuntu-ruby_16.04_x86_64').inside("--workdir=${workdir}") {
+      stage('Build x86_64') {
+        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} .ci/build-x86_64.sh && \
+cp urjtag/urjtag_*.*.*-*_*.deb ."
+      }
+    }
   }
-  stage('Archive')
-  {
+
+  stage('Archive') {
     archiveArtifacts artifacts: 'urjtag_*.*.*-*_*.deb', fingerprint: true
   }
-  if(env.BRANCH_NAME == "master")
-  {
+  if(env.BRANCH_NAME == "master") {
     stage('Upload')
     {
       def uploadSpec = """{
