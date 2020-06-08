@@ -48,12 +48,12 @@ node('merlin')
           {
             "pattern": "urjtag_*.*.*-*_amd64.deb",
             "target": "fpga-deb-nightly/pool/urjtag/",
-            "props": "deb.distribution=bionic;deb.component=contrib;deb.architecture=armhf"
+            "props": "deb.distribution=xenial;deb.component=contrib;deb.architecture=amd64"
           }.
           {
             "pattern": "urjtag_*.*.*-*_armhf.deb",
             "target": "fpga-deb-nightly/pool/urjtag/",
-            "props": "deb.distribution=bionic;deb.component=contrib;deb.architecture=armhf"
+            "props": "deb.distribution=xenial;deb.component=contrib;deb.architecture=armhf"
           }
         ]
       }"""
