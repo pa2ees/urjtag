@@ -12,3 +12,8 @@ Project homepage is at http://urjtag.org
 Mailinglist is the primary communication channel
 
 Fork of UrJTAG found at https://repo.or.cz/w/urjtag.git
+
+Versioning
+==========
+
+When updating the version, do so in Jenkinsfile and .travis.yml.
