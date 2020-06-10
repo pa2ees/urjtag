@@ -26,6 +26,10 @@ cp -f $bin dpkg/usr/bin/
 mkdir -p dpkg/usr/share
 cp -rf $share dpkg/usr/share/
 
+MAJOR=${MAJOR:-0}
+MINOR=${MINOR:-0}
+PATCH=${PATCH:-0}
+
 # create after-install script
 cat <<EOF > after-install.sh
 cd $pysyspath
@@ -45,9 +49,9 @@ fpm \
  --input-type dir \
  --chdir dpkg \
  --force \
- --name urjtag \
- --version 0.0.0 \
- --iteration ${TRAVIS_BUILD_NUMBER:-0} \
+ --name imsar-urjtag \
+ --version ${MAJOR}.${MINOR}.${PATCH} \
+ --iteration ${BUILD_NUMBER:-0} \
  --license 'proprietary' \
  --vendor 'IMSAR LLC' \
  --architecture $arch \

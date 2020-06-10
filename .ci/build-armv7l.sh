@@ -7,7 +7,7 @@ wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 build=armv7l
 
 # docker container only
-$travis || ($wd/install-$build.sh && $wd/clean.sh)
+$travis || $wd/clean.sh
 
 pushd urjtag
 
