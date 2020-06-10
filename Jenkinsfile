@@ -36,7 +36,7 @@ node('merlin') {
     docker.image('travisci_ubuntu-ruby_16.04_armv7l').inside("--workdir=${workdir}") {
       stage('Build armv7l') {
         sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} .ci/build-armv7l.sh && \
-cp urjtag/urjtag_*.*.*-*_*.deb ."
+cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
       }
     }
   }
@@ -45,13 +45,13 @@ cp urjtag/urjtag_*.*.*-*_*.deb ."
     docker.image('travisci_ubuntu-ruby_16.04_x86_64').inside("--workdir=${workdir}") {
       stage('Build x86_64') {
         sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} .ci/build-x86_64.sh && \
-cp urjtag/urjtag_*.*.*-*_*.deb ."
+cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
       }
     }
   }
 
   stage('Archive') {
-    archiveArtifacts artifacts: 'urjtag_*.*.*-*_*.deb', fingerprint: true
+    archiveArtifacts artifacts: 'imsar-urjtag_*.*.*-*_*.deb', fingerprint: true
   }
   if(env.BRANCH_NAME == "master") {
     stage('Upload')
@@ -59,12 +59,12 @@ cp urjtag/urjtag_*.*.*-*_*.deb ."
       def uploadSpec = """{
         "files": [
           {
-            "pattern": "urjtag_*.*.*-*_amd64.deb",
+            "pattern": "imsar-urjtag_*.*.*-*_amd64.deb",
             "target": "fpga-deb-nightly/pool/urjtag/",
             "props": "deb.distribution=xenial;deb.component=contrib;deb.architecture=amd64"
           }.
           {
-            "pattern": "urjtag_*.*.*-*_armhf.deb",
+            "pattern": "imsar-urjtag_*.*.*-*_armhf.deb",
             "target": "fpga-deb-nightly/pool/urjtag/",
             "props": "deb.distribution=xenial;deb.component=contrib;deb.architecture=armhf"
           }

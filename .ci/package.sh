@@ -49,7 +49,7 @@ fpm \
  --input-type dir \
  --chdir dpkg \
  --force \
- --name urjtag \
+ --name imsar-urjtag \
  --version ${MAJOR}.${MINOR}.${PATCH} \
  --iteration ${BUILD_NUMBER:-0} \
  --license 'proprietary' \
