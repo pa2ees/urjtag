@@ -54,6 +54,7 @@ fpm \
  --iteration ${BUILD_NUMBER:-0} \
  --license 'proprietary' \
  --vendor 'IMSAR LLC' \
+ --replaces urjtag \
  --architecture $arch \
  --maintainer 'IMSAR FPGA Team <fpga@imsar.com>' \
  --description 'UrJTAG Python bindings' \
