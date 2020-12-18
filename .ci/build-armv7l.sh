@@ -35,7 +35,7 @@ cp src/svf/svf_bison.h.copy src/svf/svf_bison.h
 cp src/svf/svf_flex.c.copy src/svf/svf_flex.c
 
 make -j$(nproc)
-find . -name "*urjtag*.so*"
+find . -name "*urjtag*.so*" | xargs ls -l
 
 make install
 
@@ -46,7 +46,7 @@ $wd/package.sh \
  armhf \
  $prefix/bin/jtag \
  $prefix/share/urjtag \
- src/.libs/liburjtag.so.0.0.0 \
- urjtag.cpython-35m-arm-linux-gnueabihf.so
+ urjtag.cpython-35m-arm-linux-gnueabihf.so \
+ src/.libs/liburjtag.so*
 
 popd # urjtag
