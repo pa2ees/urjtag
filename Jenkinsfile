@@ -35,7 +35,16 @@ node('merlin') {
   docker.withRegistry('https://embedded-docker-release.artifactory.imsar.us') {
     docker.image('travisci_ubuntu-ruby_16.04_armv7l').inside("--workdir=${workdir}") {
       stage('Build armv7l') {
-        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} .ci/build-armv7l.sh && \
+        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} ci/build-armv7l.sh && \
+cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
+      }
+    }
+  }
+
+  docker.withRegistry('https://embedded-docker-release.artifactory.imsar.us') {
+    docker.image('travisci_ubuntu-ruby_16.04_aarch64').inside("--workdir=${workdir}") {
+      stage('Build aarch64') {
+        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} ci/build-aarch64.sh && \
 cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
       }
     }
@@ -44,7 +53,7 @@ cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
   docker.withRegistry('https://embedded-docker-release.artifactory.imsar.us') {
     docker.image('travisci_ubuntu-ruby_16.04_x86_64').inside("--workdir=${workdir}") {
       stage('Build x86_64') {
-        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} .ci/build-x86_64.sh && \
+        sh "MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH} BUILD_NUMBER=${env.BUILD_NUMBER} ci/build-x86_64.sh && \
 cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
       }
     }
@@ -67,6 +76,11 @@ cp urjtag/imsar-urjtag_*.*.*-*_*.deb ."
             "pattern": "imsar-urjtag_*.*.*-*_armhf.deb",
             "target": "fpga-deb-nightly/pool/urjtag/",
             "props": "deb.distribution=xenial;deb.component=contrib;deb.architecture=armhf"
+          },
+          {
+            "pattern": "imsar-urjtag_*.*.*-*_arm64.deb",
+            "target": "fpga-deb-nightly/pool/urjtag/",
+            "props": "deb.distribution=xenial;deb.component=contrib;deb.architecture=arm64"
           }
         ]
       }"""

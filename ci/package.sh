@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-if [ $# -lt 2 ]; then
-  echo "USAGE: $0 ARCH BIN SHARE PYLIB SHARED_OBJS"
+if [ $# -lt 6 ]; then
+  echo "USAGE: $0 ARCH TOOLCHAIN BIN SHARE PYLIB SHARED_OBJS"
   exit 1
 fi
 set -x
@@ -9,6 +9,9 @@ set -x
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 arch=$1
+shift
+
+toolchain=$1
 shift
 
 # binary
@@ -28,7 +31,7 @@ cp -f $1 dpkg/$lib/
 shift
 
 # liburjtag.so*
-lib=/usr/lib/arm-linux-gnueabihf
+lib=/usr/lib/$toolchain
 mkdir -p dpkg/$lib
 cp -fP $@ dpkg/$lib/
 

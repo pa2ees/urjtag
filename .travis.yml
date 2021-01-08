@@ -25,8 +25,8 @@ before_install:
 jobs:
   include:
     - stage: build # x86_64
-      install: .ci/install-x86_64.sh
-      script: .ci/build-x86_64.sh
+      install: ci/install-x86_64.sh
+      script: ci/build-x86_64.sh
       deploy:
         provider: releases
         token:
@@ -38,13 +38,26 @@ jobs:
           branch: master
           tags: true
     - stage: build # armv7l
-      install: .ci/install-armv7l.sh
-      script: .ci/build-armv7l.sh
+      install: ci/install-armv7l.sh
+      script: ci/build-armv7l.sh
       deploy:
         provider: releases
         token:
           secure: qHljlP/0L/pWj0FVCGJ4auL9go3moYC6UuebmUdoWFtC2jMj5hEHTzydmHoEW+ZxTY3AF82KYdQva4RshmweX5PSx/HSY/GFxaCAlYTJqgHVZpXj5tzfT7POzjLqa84WYaF0kz8c9A/EvKBSsp5C9AyYkh2qkA1KImbqBHOfB3e3aOwvmDfoUV2CmlfSfHFgzXFf2lmmUV9aIE8zsKnmGjTy2qP+QtGDxq3UnMekeqHF+ga53NQSURzqU9cSd6CDl9XX2et0rowCylRKSNfqmejfYVm5rT3bK7pPQv4mxO/Yrwe1FBLJX0uRfxZomkd2Dikx9M55nlNY22jRNvtLzgWv9r3LnHM2um5RFG0oh9q3ybm2Scca6MQHU0K+s5JKlNcIqc6PKKw1lMlGB/7Yd9gEXyAFWQT9JqnWo3S7CJxFNQYtbCEHg4p35lVdlrDX2UWU7YKidbSl/iC00JeMKpvUycM03Je4epHVntHfb9cWM6/fY3x3hpY/hD00KuG+Faq//dy7CkThqdY6r3AmEfW8AI5GuBLKk/s0pHatE7tPeQJxmTjbGOVo2flHsyt9aNPW1ReYk19bGNUHNZtRN/7TsiqREXTtAoXDTaGOSmi6WmF+MIezFvaPqrXKulqJkyXWv+790cJGuy2EE1hiF1kGuPoLenX5TxgOHPGD8kw=
         file: urjtag/imsar-urjtag_${MAJOR}.${MINOR}.${PATCH}-${BUILD_NUMBER}_armhf.deb
+        cleanup: false
+        on:
+          repo: imsarllc/urjtag
+          branch: master
+          tags: true
+    - stage: build # aarch64
+      install: ci/install-aarch64.sh
+      script: ci/build-aarch64.sh
+      deploy:
+        provider: releases
+        token:
+          secure: qHljlP/0L/pWj0FVCGJ4auL9go3moYC6UuebmUdoWFtC2jMj5hEHTzydmHoEW+ZxTY3AF82KYdQva4RshmweX5PSx/HSY/GFxaCAlYTJqgHVZpXj5tzfT7POzjLqa84WYaF0kz8c9A/EvKBSsp5C9AyYkh2qkA1KImbqBHOfB3e3aOwvmDfoUV2CmlfSfHFgzXFf2lmmUV9aIE8zsKnmGjTy2qP+QtGDxq3UnMekeqHF+ga53NQSURzqU9cSd6CDl9XX2et0rowCylRKSNfqmejfYVm5rT3bK7pPQv4mxO/Yrwe1FBLJX0uRfxZomkd2Dikx9M55nlNY22jRNvtLzgWv9r3LnHM2um5RFG0oh9q3ybm2Scca6MQHU0K+s5JKlNcIqc6PKKw1lMlGB/7Yd9gEXyAFWQT9JqnWo3S7CJxFNQYtbCEHg4p35lVdlrDX2UWU7YKidbSl/iC00JeMKpvUycM03Je4epHVntHfb9cWM6/fY3x3hpY/hD00KuG+Faq//dy7CkThqdY6r3AmEfW8AI5GuBLKk/s0pHatE7tPeQJxmTjbGOVo2flHsyt9aNPW1ReYk19bGNUHNZtRN/7TsiqREXTtAoXDTaGOSmi6WmF+MIezFvaPqrXKulqJkyXWv+790cJGuy2EE1hiF1kGuPoLenX5TxgOHPGD8kw=
+        file: urjtag/imsar-urjtag_${MAJOR}.${MINOR}.${PATCH}-${BUILD_NUMBER}_arm64.deb
         cleanup: false
         on:
           repo: imsarllc/urjtag

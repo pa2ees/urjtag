@@ -1,17 +1,25 @@
 #!/bin/bash -ex
 
+if [ $# -lt 3 ]; then
+  echo "USAGE: $0 ARCH TOOLCHAIN MACHINE"
+  exit 1
+fi
+arch=$1
+toolchain=$2
+machine=$3
+
 wd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 $wd/install-common.sh
 
 SUDO=${SUDO:-}
 
 # ARM GNU compiler utilities
-if [ ! -f /usr/bin/arm-linux-gnueabihf-gcc ]; then
+if [ ! -f /usr/bin/$toolchain-gcc ]; then
   ${SUDO} rm -f /etc/apt/sources.list /etc/apt/sources.list.d/* # eliminates 404 errors w/ apt update
-  cat .ci/xenial.list | ${SUDO} tee /etc/apt/sources.list.d/xenial.list
-  ${SUDO} dpkg --add-architecture armhf
+  cat ci/xenial.list | ${SUDO} tee /etc/apt/sources.list.d/xenial.list
+  ${SUDO} dpkg --add-architecture $arch
   ${SUDO} apt update || :
-  ${SUDO} apt install -yq gcc-arm-linux-gnueabihf crossbuild-essential-armhf
+  ${SUDO} apt install -yq gcc-$toolchain crossbuild-essential-$arch python3-dev
 fi
 
 # Python
@@ -24,14 +32,14 @@ if [ ! -f /usr/local/include/python3.5m/Python.h ]; then
   echo ac_cv_file__dev_ptmx=no > CONFIG_SITE
   echo ac_cv_file__dev_ptc=no >> CONFIG_SITE
   CONFIG_SITE=CONFIG_SITE \
-   CC=arm-linux-gnueabihf-gcc CPP=arm-linux-gnueabihf-cpp \
-   READELF=arm-linux-gnueabihf-readelf \
+   CC=$toolchain-gcc CPP=$toolchain-cpp \
+   READELF=$toolchain-readelf \
    ./configure \
-   --host=arm-linux-gnueabihf \
-   --build=armv7l \
+   --host=$toolchain \
+   --build=$machine \
    --enable-shared \
    --disable-ipv6 \
-   --exec-prefix=/usr/arm-linux-gnueabihf
+   --exec-prefix=/usr/$toolchain || cat config.log
   make -j$(nproc)
   ${SUDO} make -j$(nproc) install
   popd
