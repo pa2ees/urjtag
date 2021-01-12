@@ -23,7 +23,7 @@ PYTHON=/usr/bin/python3.5 ./autogen.sh \
  --enable-relocatable --prefix=$prefix
 make -j$(nproc)
 ! $travis || git checkout HEAD $(git rev-parse --show-toplevel)/urjtag/configure.ac
-find . -name "*urjtag*.so*"
+find . -name "*urjtag*.so*" | xargs ls -l
 
 make install
 
@@ -31,7 +31,7 @@ $wd/package.sh \
  amd64 \
  $prefix/bin/jtag \
  $prefix/share/urjtag \
- src/.libs/liburjtag.so.0.0.0 \
- bindings/python/build/lib.linux-$build-3.5/urjtag.cpython-35m-$build-linux-gnu.so
+ bindings/python/build/lib.linux-$build-3.5/urjtag.cpython-35m-$build-linux-gnu.so \
+ src/.libs/liburjtag.so*
 
 popd # urjtag
